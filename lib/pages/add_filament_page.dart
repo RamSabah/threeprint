@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/filament_service.dart';
 import '../services/filament_validation.dart';
 import '../widgets/color_picker_widget.dart';
+import '../widgets/spoolman_search_widget.dart';
 
 class AddFilamentPage extends StatefulWidget {
   const AddFilamentPage({super.key});
@@ -28,7 +29,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   bool _isSaving = false;
   final FilamentService _filamentService = FilamentService();
   
-  final List<String> _filamentTypes = ['PETG', 'PLA', 'Other'];
+  final List<String> _filamentTypes = ['PLA', 'ABS', 'PETG', 'TPU', 'WOOD', 'ASA', 'PC', 'Other'];
 
   @override
   void dispose() {
@@ -147,6 +148,85 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _notesController.clear();
   }
 
+  void _openSpoolmanSearch() {
+    SpoolmanSearchUtils.showSpoolmanSearch(
+      context: context,
+      onFilamentSelected: _populateFromSpoolman,
+    );
+  }
+
+  void _populateFromSpoolman(Map<String, dynamic> filamentData) {
+    setState(() {
+      // Map filament type
+      final material = filamentData['material'] as String?;
+      if (material != null) {
+        // Try to match with existing types, default to 'Other' if not found
+        if (_filamentTypes.contains(material)) {
+          _selectedFilamentType = material;
+        } else {
+          _selectedFilamentType = 'Other';
+        }
+      }
+      
+      // Set brand from vendor name
+      final vendor = filamentData['vendor'];
+      if (vendor != null && vendor['name'] != null) {
+        _brandController.text = vendor['name'];
+      }
+      
+      // Set specifications
+      if (filamentData['weight'] != null) {
+        _weightController.text = filamentData['weight'].toString();
+      }
+      if (filamentData['diameter'] != null) {
+        _diameterController.text = filamentData['diameter'].toString();
+      }
+      if (filamentData['spool_weight'] != null) {
+        _emptySpoolWeightController.text = filamentData['spool_weight'].toString();
+      }
+      if (filamentData['price'] != null) {
+        _costController.text = filamentData['price'].toString();
+      }
+      
+      // Set color if available
+      final colorHex = filamentData['color_hex'] as String?;
+      if (colorHex != null && colorHex.isNotEmpty) {
+        try {
+          String cleanHex = colorHex.replaceAll('#', '');
+          if (cleanHex.length == 6) {
+            _selectedColor = Color(int.parse('FF$cleanHex', radix: 16));
+            _selectedColorName = ColorPickerUtils.getColorName(_selectedColor);
+          }
+        } catch (e) {
+          // Keep default color if parsing fails
+        }
+      }
+      
+      // Set notes with filament info
+      final name = filamentData['name'] as String?;
+      final articleNumber = filamentData['article_number'] as String?;
+      List<String> notesParts = [];
+      if (name != null && name.isNotEmpty) {
+        notesParts.add('Name: $name');
+      }
+      if (articleNumber != null && articleNumber.isNotEmpty) {
+        notesParts.add('Article: $articleNumber');
+      }
+      if (notesParts.isNotEmpty) {
+        _notesController.text = notesParts.join('\n');
+      }
+    });
+    
+    // Show success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Filament data imported from Spoolman!'),
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,32 +238,51 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              Center(
-                child: Column(
-                  children: [
-                    Image.asset(
-                      'lib/assets/icons/Filament_Roll.png',
-                      width: 80,
-                      height: 80,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.inventory_2,
-                          size: 80,
-                          color: Colors.grey,
-                        );
-                      },
+              Stack(
+                children: [
+                  Center(
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'lib/assets/icons/Filament_Roll.png',
+                          width: 80,
+                          height: 80,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.inventory_2,
+                              size: 80,
+                              color: Colors.grey,
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Add New Filament',
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        const Text(
+                          'Track your filament inventory',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Add New Filament',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: IconButton(
+                        onPressed: _openSpoolmanSearch,
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        tooltip: 'Import from Spoolman',
+                      ),
                     ),
-                    const Text(
-                      'Track your filament inventory',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               const SizedBox(height: 32),
               
