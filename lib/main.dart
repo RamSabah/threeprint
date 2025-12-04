@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'BaseColors.dart';
 import 'navigation/main_navigation.dart';
+import 'pages/account_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,9 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const MainNavigation(),
+      routes: {
+        '/account': (context) => const AccountPage(),
+      },
     );
   }
 }

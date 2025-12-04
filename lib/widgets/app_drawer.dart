@@ -38,10 +38,10 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.person),
-            title: const Text('Login'),
+            title: const Text('Account'),
             onTap: () {
               Navigator.pop(context);
-              // TODO: Implement login functionality
+              Navigator.pushNamed(context, '/account');
             },
           ),
         ],
