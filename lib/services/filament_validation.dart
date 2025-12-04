@@ -37,6 +37,159 @@ class FilamentValidation {
     return null;
   }
 
+  /// Validate filament brand
+  static String? validateFilamentBrand(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a brand name';
+    }
+    
+    if (value.trim().length < 2) {
+      return 'Brand name must be at least 2 characters';
+    }
+    
+    if (value.trim().length > 50) {
+      return 'Brand name must be less than 50 characters';
+    }
+    
+    return null;
+  }
+
+  /// Validate filament weight
+  static String? validateWeight(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter the weight';
+    }
+    
+    final weight = double.tryParse(value);
+    if (weight == null) {
+      return 'Please enter a valid weight';
+    }
+    
+    if (weight <= 0) {
+      return 'Weight must be greater than 0';
+    }
+    
+    if (weight > 10000) {
+      return 'Weight must be less than 10,000g';
+    }
+    
+    return null;
+  }
+
+  /// Validate filament diameter
+  static String? validateDiameter(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter the diameter';
+    }
+    
+    final diameter = double.tryParse(value);
+    if (diameter == null) {
+      return 'Please enter a valid diameter';
+    }
+    
+    if (diameter <= 0) {
+      return 'Diameter must be greater than 0';
+    }
+    
+    if (diameter > 10) {
+      return 'Diameter must be less than 10mm';
+    }
+    
+    return null;
+  }
+
+  /// Validate quantity
+  static String? validateQuantity(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter the quantity';
+    }
+    
+    final quantity = int.tryParse(value);
+    if (quantity == null) {
+      return 'Please enter a valid quantity';
+    }
+    
+    if (quantity <= 0) {
+      return 'Quantity must be greater than 0';
+    }
+    
+    if (quantity > 1000) {
+      return 'Quantity must be less than 1,000';
+    }
+    
+    return null;
+  }
+
+  /// Validate empty spool weight (optional)
+  static String? validateEmptySpoolWeight(String? value) {
+    if (value == null || value.isEmpty) {
+      return null; // Optional field
+    }
+    
+    final weight = double.tryParse(value);
+    if (weight == null) {
+      return 'Please enter a valid weight';
+    }
+    
+    if (weight < 0) {
+      return 'Weight cannot be negative';
+    }
+    
+    if (weight > 5000) {
+      return 'Empty spool weight must be less than 5,000g';
+    }
+    
+    return null;
+  }
+
+  /// Validate cost (optional)
+  static String? validateCost(String? value) {
+    if (value == null || value.isEmpty) {
+      return null; // Optional field
+    }
+    
+    final cost = double.tryParse(value);
+    if (cost == null) {
+      return 'Please enter a valid cost';
+    }
+    
+    if (cost < 0) {
+      return 'Cost cannot be negative';
+    }
+    
+    if (cost > 10000) {
+      return 'Cost must be less than 10,000';
+    }
+    
+    return null;
+  }
+
+  /// Validate storage location (optional)
+  static String? validateStorageLocation(String? value) {
+    if (value == null || value.isEmpty) {
+      return null; // Optional field
+    }
+    
+    if (value.trim().length > 100) {
+      return 'Storage location must be less than 100 characters';
+    }
+    
+    return null;
+  }
+
+  /// Validate notes (optional)
+  static String? validateNotes(String? value) {
+    if (value == null || value.isEmpty) {
+      return null; // Optional field
+    }
+    
+    if (value.trim().length > 500) {
+      return 'Notes must be less than 500 characters';
+    }
+    
+    return null;
+  }
+
   /// Validate hex color code
   static String? validateHexColor(String? value) {
     if (value == null || value.isEmpty) {

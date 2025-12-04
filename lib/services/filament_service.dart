@@ -18,6 +18,14 @@ class FilamentService {
     required String type,
     required String color,
     required int count,
+    required String brand,
+    required double weight,
+    required double diameter,
+    required int quantity,
+    double? emptySpoolWeight,
+    double? cost,
+    String? storageLocation,
+    String? notes,
   }) async {
     try {
       final userId = _currentUserId;
@@ -34,6 +42,14 @@ class FilamentService {
         type: type,
         color: color,
         count: count,
+        brand: brand,
+        weight: weight,
+        diameter: diameter,
+        quantity: quantity,
+        emptySpoolWeight: emptySpoolWeight,
+        cost: cost,
+        storageLocation: storageLocation,
+        notes: notes,
         createdAt: now,
         updatedAt: now,
       );

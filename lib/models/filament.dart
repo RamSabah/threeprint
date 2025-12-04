@@ -6,6 +6,14 @@ class Filament {
   final String type;
   final String color;
   final int count;
+  final String brand;
+  final double weight; // in grams
+  final double diameter; // in mm
+  final int quantity; // number of spools/rolls
+  final double? emptySpoolWeight; // optional empty spool weight in grams
+  final double? cost; // optional cost
+  final String? storageLocation; // optional storage location
+  final String? notes; // optional notes
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -15,6 +23,14 @@ class Filament {
     required this.type,
     required this.color,
     required this.count,
+    required this.brand,
+    required this.weight,
+    required this.diameter,
+    required this.quantity,
+    this.emptySpoolWeight,
+    this.cost,
+    this.storageLocation,
+    this.notes,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -28,6 +44,14 @@ class Filament {
       type: data['type'] ?? '',
       color: data['color'] ?? '',
       count: data['count'] ?? 0,
+      brand: data['brand'] ?? '',
+      weight: (data['weight'] ?? 1000.0).toDouble(),
+      diameter: (data['diameter'] ?? 1.75).toDouble(),
+      quantity: data['quantity'] ?? 1,
+      emptySpoolWeight: data['emptySpoolWeight']?.toDouble(),
+      cost: data['cost']?.toDouble(),
+      storageLocation: data['storageLocation'],
+      notes: data['notes'],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
@@ -35,14 +59,26 @@ class Filament {
 
   // Convert Filament to Map for Firestore
   Map<String, dynamic> toFirestore() {
-    return {
+    final Map<String, dynamic> data = {
       'userId': userId,
       'type': type,
       'color': color,
       'count': count,
+      'brand': brand,
+      'weight': weight,
+      'diameter': diameter,
+      'quantity': quantity,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
+    
+    // Add optional fields only if they have values
+    if (emptySpoolWeight != null) data['emptySpoolWeight'] = emptySpoolWeight;
+    if (cost != null) data['cost'] = cost;
+    if (storageLocation != null && storageLocation!.isNotEmpty) data['storageLocation'] = storageLocation;
+    if (notes != null && notes!.isNotEmpty) data['notes'] = notes;
+    
+    return data;
   }
 
   // Create a copy with updated fields
@@ -52,6 +88,14 @@ class Filament {
     String? type,
     String? color,
     int? count,
+    String? brand,
+    double? weight,
+    double? diameter,
+    int? quantity,
+    double? emptySpoolWeight,
+    double? cost,
+    String? storageLocation,
+    String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -61,6 +105,14 @@ class Filament {
       type: type ?? this.type,
       color: color ?? this.color,
       count: count ?? this.count,
+      brand: brand ?? this.brand,
+      weight: weight ?? this.weight,
+      diameter: diameter ?? this.diameter,
+      quantity: quantity ?? this.quantity,
+      emptySpoolWeight: emptySpoolWeight ?? this.emptySpoolWeight,
+      cost: cost ?? this.cost,
+      storageLocation: storageLocation ?? this.storageLocation,
+      notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -68,7 +120,7 @@ class Filament {
 
   @override
   String toString() {
-    return 'Filament(id: $id, userId: $userId, type: $type, color: $color, count: $count)';
+    return 'Filament(id: $id, userId: $userId, type: $type, color: $color, count: $count, brand: $brand, weight: ${weight}g, diameter: ${diameter}mm, quantity: $quantity, emptySpoolWeight: ${emptySpoolWeight}g, cost: $cost, storageLocation: $storageLocation, notes: $notes)';
   }
 
   @override
@@ -79,7 +131,15 @@ class Filament {
         other.userId == userId &&
         other.type == type &&
         other.color == color &&
-        other.count == count;
+        other.count == count &&
+        other.brand == brand &&
+        other.weight == weight &&
+        other.diameter == diameter &&
+        other.quantity == quantity &&
+        other.emptySpoolWeight == emptySpoolWeight &&
+        other.cost == cost &&
+        other.storageLocation == storageLocation &&
+        other.notes == notes;
   }
 
   @override
@@ -87,6 +147,14 @@ class Filament {
     return id.hashCode ^
         userId.hashCode ^
         type.hashCode ^
+        brand.hashCode ^
+        weight.hashCode ^
+        diameter.hashCode ^
+        quantity.hashCode ^
+        emptySpoolWeight.hashCode ^
+        cost.hashCode ^
+        storageLocation.hashCode ^
+        notes.hashCode ^
         color.hashCode ^
         count.hashCode;
   }

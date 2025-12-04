@@ -13,6 +13,14 @@ class AddFilamentPage extends StatefulWidget {
 class _AddFilamentPageState extends State<AddFilamentPage> {
   final _formKey = GlobalKey<FormState>();
   final _countController = TextEditingController();
+  final _brandController = TextEditingController();
+  final _weightController = TextEditingController(text: '1000');
+  final _diameterController = TextEditingController(text: '1.75');
+  final _quantityController = TextEditingController(text: '1');
+  final _emptySpoolWeightController = TextEditingController();
+  final _costController = TextEditingController();
+  final _storageLocationController = TextEditingController();
+  final _notesController = TextEditingController();
   
   String? _selectedFilamentType;
   Color _selectedColor = Colors.red;
@@ -25,6 +33,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   @override
   void dispose() {
     _countController.dispose();
+    _brandController.dispose();
+    _weightController.dispose();
+    _diameterController.dispose();
+    _quantityController.dispose();
+    _emptySpoolWeightController.dispose();
+    _costController.dispose();
+    _storageLocationController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -58,6 +74,22 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
           type: _selectedFilamentType!,
           color: finalColor,
           count: int.parse(_countController.text),
+          brand: _brandController.text,
+          weight: double.parse(_weightController.text),
+          diameter: double.parse(_diameterController.text),
+          quantity: int.parse(_quantityController.text),
+          emptySpoolWeight: _emptySpoolWeightController.text.isNotEmpty 
+              ? double.tryParse(_emptySpoolWeightController.text) 
+              : null,
+          cost: _costController.text.isNotEmpty 
+              ? double.tryParse(_costController.text) 
+              : null,
+          storageLocation: _storageLocationController.text.isNotEmpty 
+              ? _storageLocationController.text.trim() 
+              : null,
+          notes: _notesController.text.isNotEmpty 
+              ? _notesController.text.trim() 
+              : null,
         );
 
         // Show success message
@@ -65,7 +97,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Filament saved successfully: $_selectedFilamentType, $_selectedColorName, ${_countController.text} units',
+                'Filament saved successfully: ${_brandController.text} $_selectedFilamentType, $_selectedColorName, ${_countController.text} units',
               ),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 3),
@@ -105,6 +137,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
       _selectedColorName = 'Red';
     });
     _countController.clear();
+    _brandController.clear();
+    _weightController.text = '1000';
+    _diameterController.text = '1.75';
+    _quantityController.text = '1';
+    _emptySpoolWeightController.clear();
+    _costController.clear();
+    _storageLocationController.clear();
+    _notesController.clear();
   }
 
   @override
@@ -172,6 +212,24 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                   });
                 },
                 validator: FilamentValidation.validateFilamentType,
+              ),
+              const SizedBox(height: 20),
+              
+              // Brand Input Field
+              const Text(
+                'Brand',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _brandController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.business),
+                  hintText: 'Enter brand name (e.g., Hatchbox, eSUN)',
+                ),
+                validator: FilamentValidation.validateFilamentBrand,
+                textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: 20),
               
@@ -279,6 +337,179 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                   suffixText: 'units',
                 ),
                 validator: FilamentValidation.validateFilamentCount,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Specifications Section
+              const Text(
+                'Specifications',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              
+              // Weight, Diameter, Quantity Row
+              Row(
+                children: [
+                  // Weight Field
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Weight (g) *',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _weightController,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: '1000',
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                          ),
+                          validator: FilamentValidation.validateWeight,
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 12),
+                  
+                  // Diameter Field
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Diameter (mm)',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _diameterController,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: '1.75',
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                          ),
+                          validator: FilamentValidation.validateDiameter,
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 12),
+                  
+                  // Quantity Field
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Quantity',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _quantityController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            hintText: '1',
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                          ),
+                          validator: FilamentValidation.validateQuantity,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Optional Fields Section
+              // Empty Spool Weight
+              const Text(
+                'Empty Spool Weight (g)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Optional: Weight the spool with filament minus this = remaining filament',
+                style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _emptySpoolWeightController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: '200',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
+                validator: FilamentValidation.validateEmptySpoolWeight,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Cost
+              const Text(
+                'Cost',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _costController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: '25.99',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
+                validator: FilamentValidation.validateCost,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Storage Location
+              const Text(
+                'Storage Location',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _storageLocationController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Shelf A, Drawer 2, etc.',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
+                validator: FilamentValidation.validateStorageLocation,
+                textCapitalization: TextCapitalization.words,
+              ),
+              
+              const SizedBox(height: 20),
+              
+              // Notes
+              const Text(
+                'Notes',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _notesController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Any additional notes about this filament...',
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
+                validator: FilamentValidation.validateNotes,
+                textCapitalization: TextCapitalization.sentences,
               ),
               
               const SizedBox(height: 32),
