@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "380329393566",
+    "project_id": "dprint-59d39",
+    "storage_bucket": "dprint-59d39.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:380329393566:android:2058d0c053a9ac669f2a8f",
+        "android_client_info": {
+          "package_name": "com.silicasoft.threeprint"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJ3d376JM1JUPONO32B6FsBfHA29I5Qdk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
