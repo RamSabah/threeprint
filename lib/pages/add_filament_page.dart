@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import '../api/color_api_service.dart';
 
 class AddFilamentPage extends StatefulWidget {
   const AddFilamentPage({super.key});
@@ -17,8 +19,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   String? _selectedColor;
   String? _customHexColor;
   List<String> _filteredColors = [];
+  List<ColorResult> _apiColorResults = [];
   bool _showColorSearch = false;
   bool _showHexInput = false;
+  bool _isSearchingApi = false;
+  bool _showApiResults = false;
+  Timer? _searchTimer;
   
   final List<String> _filamentTypes = ['PETG', 'PLA', 'Other'];
   final List<String> _allColors = [
@@ -96,6 +102,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _countController.dispose();
     _colorSearchController.dispose();
     _hexColorController.dispose();
+    _searchTimer?.cancel();
     super.dispose();
   }
 
@@ -103,12 +110,73 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     setState(() {
       if (query.isEmpty) {
         _filteredColors = _allColors;
+        _apiColorResults.clear();
+        _showApiResults = false;
       } else {
+        // Filter local colors
         _filteredColors = _allColors
             .where((color) => color.toLowerCase().contains(query.toLowerCase()))
             .toList();
+        
+        // Search API for colors
+        _searchApiColors(query);
       }
     });
+  }
+
+  void _searchApiColors(String query) {
+    if (query.length < 2) return;
+    
+    // Cancel previous timer
+    _searchTimer?.cancel();
+    
+    // Start new timer for debouncing (wait 800ms before making API call)
+    _searchTimer = Timer(const Duration(milliseconds: 800), () async {
+      await _performApiSearch();
+    });
+  }
+
+  Future<void> _performApiSearch() async {
+    final query = _colorSearchController.text.trim();
+    if (query.isEmpty) return;
+    
+    setState(() {
+      _isSearchingApi = true;
+      _showApiResults = false;
+    });
+
+    try {
+      final results = await ColorApiService.searchColors(query);
+      if (mounted) {
+        setState(() {
+          _apiColorResults = results;
+          _showApiResults = results.isNotEmpty;
+          _isSearchingApi = false;
+        });
+        
+        if (results.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No colors found. Try searching for common colors like "blue", "red", or hex codes.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSearchingApi = false;
+          _showApiResults = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error searching colors: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _setColorFromHex(String hexValue) {
@@ -263,16 +331,153 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             
             // Color Search Field
             if (_showColorSearch) ...[
-              TextField(
-                controller: _colorSearchController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.search),
-                  hintText: 'Search colors...',
-                ),
-                onChanged: _filterColors,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _colorSearchController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.search),
+                        hintText: 'Search colors (e.g., blue, red, FF0000)...',
+                      ),
+                      onChanged: _filterColors,
+                      onSubmitted: (value) => _performApiSearch(),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _isSearchingApi ? null : _performApiSearch,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: _isSearchingApi 
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Search'),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
+              
+              // API Search Results - More visible list
+              if (_showApiResults && _apiColorResults.isNotEmpty) ...[
+                Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.blue.shade300, width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.blue.shade50,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade100,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.palette, 
+                              size: 20, 
+                              color: Colors.blue.shade700
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Color Search Results (${_apiColorResults.length})',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _apiColorResults.length,
+                        separatorBuilder: (context, index) => Divider(
+                          height: 1,
+                          color: Colors.grey.shade300,
+                        ),
+                        itemBuilder: (context, index) {
+                          final colorResult = _apiColorResults[index];
+                          return ListTile(
+                            leading: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: colorResult.color,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: Colors.grey.shade400,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            title: Text(
+                              colorResult.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            subtitle: Text(
+                              'HEX: ${colorResult.hex}',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 14,
+                              ),
+                            ),
+                            trailing: const Icon(Icons.arrow_forward_ios),
+                            onTap: () {
+                              setState(() {
+                                _selectedColor = colorResult.name;
+                                _customHexColor = colorResult.hex;
+                                _colorSearchController.text = colorResult.name;
+                                _showApiResults = false;
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Selected: ${colorResult.name}'),
+                                  backgroundColor: Colors.green,
+                                  duration: const Duration(seconds: 2),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _showApiResults = false;
+                            });
+                          },
+                          child: const Text('Close Results'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
             
             // HEX Color Input
@@ -315,7 +520,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             DropdownButtonFormField<String>(
               value: _selectedColor,
               isExpanded: true,
-              menuMaxHeight: 300,
+              menuMaxHeight: 500,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.palette),
