@@ -10,31 +10,117 @@ class AddFilamentPage extends StatefulWidget {
 class _AddFilamentPageState extends State<AddFilamentPage> {
   final _formKey = GlobalKey<FormState>();
   final _countController = TextEditingController();
+  final _colorSearchController = TextEditingController();
+  final _hexColorController = TextEditingController();
   
   String? _selectedFilamentType;
   String? _selectedColor;
+  String? _customHexColor;
+  List<String> _filteredColors = [];
+  bool _showColorSearch = false;
+  bool _showHexInput = false;
   
   final List<String> _filamentTypes = ['PETG', 'PLA', 'Other'];
-  final List<String> _colors = [
+  final List<String> _allColors = [
     'Red',
-    'Blue', 
+    'Dark Red',
+    'Light Red',
+    'Crimson',
+    'Maroon',
+    'Blue',
+    'Dark Blue', 
+    'Light Blue',
+    'Navy Blue',
+    'Sky Blue',
+    'Royal Blue',
+    'Cyan',
+    'Teal',
     'Green',
+    'Dark Green',
+    'Light Green',
+    'Lime Green',
+    'Forest Green',
+    'Mint Green',
+    'Olive Green',
     'Yellow',
+    'Light Yellow',
+    'Golden Yellow',
+    'Lemon Yellow',
     'Orange',
+    'Dark Orange',
+    'Light Orange',
+    'Coral',
     'Purple',
+    'Dark Purple',
+    'Light Purple',
+    'Violet',
+    'Lavender',
+    'Magenta',
     'Pink',
+    'Hot Pink',
+    'Light Pink',
+    'Rose',
     'Black',
-    'White',
+    'Dark Gray',
     'Gray',
+    'Light Gray',
+    'Silver',
+    'White',
+    'Ivory',
+    'Cream',
+    'Beige',
     'Brown',
+    'Dark Brown',
+    'Light Brown',
+    'Tan',
+    'Bronze',
+    'Gold',
+    'Copper',
     'Clear/Transparent',
+    'Glow in the Dark',
+    'Metallic Silver',
+    'Metallic Gold',
+    'Wood Fill',
+    'Carbon Fiber',
     'Other'
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _filteredColors = _allColors;
+  }
+
+  @override
   void dispose() {
     _countController.dispose();
+    _colorSearchController.dispose();
+    _hexColorController.dispose();
     super.dispose();
+  }
+
+  void _filterColors(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredColors = _allColors;
+      } else {
+        _filteredColors = _allColors
+            .where((color) => color.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  void _setColorFromHex(String hexValue) {
+    if (hexValue.isNotEmpty) {
+      // Validate hex format
+      if (RegExp(r'^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$').hasMatch(hexValue)) {
+        setState(() {
+          _customHexColor = hexValue.startsWith('#') ? hexValue : '#$hexValue';
+          _selectedColor = 'Custom ($hexValue)';
+        });
+      }
+    }
   }
 
   void _saveFilament() {
@@ -58,8 +144,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     setState(() {
       _selectedFilamentType = null;
       _selectedColor = null;
+      _customHexColor = null;
+      _showColorSearch = false;
+      _showHexInput = false;
+      _filteredColors = _allColors;
     });
     _countController.clear();
+    _colorSearchController.clear();
+    _hexColorController.clear();
   }
 
   @override
@@ -127,20 +219,109 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             ),
             const SizedBox(height: 20),
             
-            // Color Dropdown
-            const Text(
-              'Color',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            // Color Section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Color',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _showColorSearch = !_showColorSearch;
+                          if (_showColorSearch) _showHexInput = false;
+                        });
+                      },
+                      icon: Icon(
+                        Icons.search,
+                        color: _showColorSearch ? Colors.green : Colors.grey,
+                      ),
+                      tooltip: 'Search colors',
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _showHexInput = !_showHexInput;
+                          if (_showHexInput) _showColorSearch = false;
+                        });
+                      },
+                      icon: Icon(
+                        Icons.color_lens,
+                        color: _showHexInput ? Colors.green : Colors.grey,
+                      ),
+                      tooltip: 'Custom HEX color',
+                    ),
+                  ],
+                ),
+              ],
             ),
             const SizedBox(height: 8),
+            
+            // Color Search Field
+            if (_showColorSearch) ...[
+              TextField(
+                controller: _colorSearchController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search),
+                  hintText: 'Search colors...',
+                ),
+                onChanged: _filterColors,
+              ),
+              const SizedBox(height: 8),
+            ],
+            
+            // HEX Color Input
+            if (_showHexInput) ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _hexColorController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.tag),
+                        hintText: 'Enter HEX color (e.g., FF5733)',
+                      ),
+                      onChanged: (value) {
+                        if (value.length >= 6) {
+                          _setColorFromHex(value);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: _customHexColor != null 
+                          ? _getColorFromHex(_customHexColor!) 
+                          : Colors.grey.shade300,
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
+            
+            // Color Dropdown
             DropdownButtonFormField<String>(
               value: _selectedColor,
+              isExpanded: true,
+              menuMaxHeight: 300,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.palette),
                 hintText: 'Select color',
               ),
-              items: _colors.map((String color) {
+              items: _filteredColors.map((String color) {
                 return DropdownMenuItem<String>(
                   value: color,
                   child: Row(
@@ -155,7 +336,13 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           border: Border.all(color: Colors.grey.shade300),
                         ),
                       ),
-                      Text(color),
+                      Expanded(
+                        child: Text(
+                          color,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
                     ],
                   ),
                 );
@@ -163,6 +350,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               onChanged: (String? newValue) {
                 setState(() {
                   _selectedColor = newValue;
+                  _customHexColor = null; // Clear custom hex when selecting predefined color
                 });
               },
               validator: (value) {
@@ -252,30 +440,140 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     switch (colorName.toLowerCase()) {
       case 'red':
         return Colors.red;
+      case 'dark red':
+        return Colors.red.shade800;
+      case 'light red':
+        return Colors.red.shade300;
+      case 'crimson':
+        return const Color(0xFFDC143C);
+      case 'maroon':
+        return const Color(0xFF800000);
       case 'blue':
         return Colors.blue;
+      case 'dark blue':
+        return Colors.blue.shade800;
+      case 'light blue':
+        return Colors.blue.shade300;
+      case 'navy blue':
+        return const Color(0xFF000080);
+      case 'sky blue':
+        return const Color(0xFF87CEEB);
+      case 'royal blue':
+        return const Color(0xFF4169E1);
+      case 'cyan':
+        return Colors.cyan;
+      case 'teal':
+        return Colors.teal;
       case 'green':
         return Colors.green;
+      case 'dark green':
+        return Colors.green.shade800;
+      case 'light green':
+        return Colors.green.shade300;
+      case 'lime green':
+        return const Color(0xFF32CD32);
+      case 'forest green':
+        return const Color(0xFF228B22);
+      case 'mint green':
+        return const Color(0xFF98FB98);
+      case 'olive green':
+        return const Color(0xFF808000);
       case 'yellow':
         return Colors.yellow;
+      case 'light yellow':
+        return Colors.yellow.shade300;
+      case 'golden yellow':
+        return const Color(0xFFFFD700);
+      case 'lemon yellow':
+        return const Color(0xFFFFFACD);
       case 'orange':
         return Colors.orange;
+      case 'dark orange':
+        return Colors.orange.shade800;
+      case 'light orange':
+        return Colors.orange.shade300;
+      case 'coral':
+        return const Color(0xFFFF7F50);
       case 'purple':
         return Colors.purple;
+      case 'dark purple':
+        return Colors.purple.shade800;
+      case 'light purple':
+        return Colors.purple.shade300;
+      case 'violet':
+        return const Color(0xFF8A2BE2);
+      case 'lavender':
+        return const Color(0xFFE6E6FA);
+      case 'magenta':
+        return Colors.pink.shade600;
       case 'pink':
         return Colors.pink;
+      case 'hot pink':
+        return const Color(0xFFFF69B4);
+      case 'light pink':
+        return Colors.pink.shade200;
+      case 'rose':
+        return const Color(0xFFFF007F);
       case 'black':
         return Colors.black;
-      case 'white':
-        return Colors.white;
+      case 'dark gray':
+        return Colors.grey.shade800;
       case 'gray':
         return Colors.grey;
+      case 'light gray':
+        return Colors.grey.shade400;
+      case 'silver':
+        return const Color(0xFFC0C0C0);
+      case 'white':
+        return Colors.white;
+      case 'ivory':
+        return const Color(0xFFFFFFF0);
+      case 'cream':
+        return const Color(0xFFFFFDD0);
+      case 'beige':
+        return const Color(0xFFF5F5DC);
       case 'brown':
         return Colors.brown;
+      case 'dark brown':
+        return Colors.brown.shade800;
+      case 'light brown':
+        return Colors.brown.shade300;
+      case 'tan':
+        return const Color(0xFFD2B48C);
+      case 'bronze':
+        return const Color(0xFFCD7F32);
+      case 'gold':
+        return const Color(0xFFFFD700);
+      case 'copper':
+        return const Color(0xFFB87333);
       case 'clear/transparent':
         return Colors.transparent;
+      case 'glow in the dark':
+        return const Color(0xFF39FF14);
+      case 'metallic silver':
+        return const Color(0xFFAAA9AD);
+      case 'metallic gold':
+        return const Color(0xFFD4AF37);
+      case 'wood fill':
+        return const Color(0xFF8B4513);
+      case 'carbon fiber':
+        return const Color(0xFF36454F);
       default:
         return Colors.grey;
     }
+  }
+
+  Color _getColorFromHex(String hexColor) {
+    hexColor = hexColor.replaceAll('#', '');
+    if (hexColor.length == 6) {
+      return Color(int.parse('FF$hexColor', radix: 16));
+    } else if (hexColor.length == 3) {
+      // Convert 3-digit hex to 6-digit
+      String r = hexColor[0];
+      String g = hexColor[1];
+      String b = hexColor[2];
+      return Color(int.parse('FF$r$r$g$g$b$b', radix: 16));
+    }
+    return Colors.grey;
   }
 }
