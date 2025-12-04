@@ -125,7 +125,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   }
 
   void _searchApiColors(String query) {
-    if (query.length < 2) return;
+    if (query.length < 2) {
+      setState(() {
+        _apiColorResults.clear();
+        _showApiResults = false;
+        _isSearchingApi = false;
+      });
+      return;
+    }
     
     // Cancel previous timer
     _searchTimer?.cancel();
@@ -135,14 +142,38 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
       await _performApiSearch();
     });
   }
+  
+  void _clearSearchState() {
+    _searchTimer?.cancel();
+    setState(() {
+      _colorSearchController.clear();
+      _apiColorResults.clear();
+      _showApiResults = false;
+      _isSearchingApi = false;
+      _showColorSearch = false;
+    });
+  }
+  
+  Color _getDisplayColorForSelected() {
+    if (_customHexColor != null) {
+      return _getColorFromHex(_customHexColor!);
+    } else if (_selectedColor != null) {
+      return _getColorFromName(_selectedColor!);
+    }
+    return Colors.grey;
+  }
 
   Future<void> _performApiSearch() async {
     final query = _colorSearchController.text.trim();
     if (query.isEmpty) return;
     
+    // Cancel any existing search
+    _searchTimer?.cancel();
+    
     setState(() {
       _isSearchingApi = true;
       _showApiResults = false;
+      _apiColorResults.clear(); // Clear previous results
     });
 
     try {
@@ -209,6 +240,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   }
 
   void _resetForm() {
+    // Cancel any ongoing search
+    _searchTimer?.cancel();
+    
     setState(() {
       _selectedFilamentType = null;
       _selectedColor = null;
@@ -216,6 +250,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
       _showColorSearch = false;
       _showHexInput = false;
       _filteredColors = _allColors;
+      _apiColorResults.clear();
+      _showApiResults = false;
+      _isSearchingApi = false;
     });
     _countController.clear();
     _colorSearchController.clear();
@@ -446,12 +483,27 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             ),
                             trailing: const Icon(Icons.arrow_forward_ios),
                             onTap: () {
+                              // Cancel any ongoing search
+                              _searchTimer?.cancel();
+                              
                               setState(() {
+                                // Add the API color to our local colors if not already present
+                                if (!_allColors.contains(colorResult.name)) {
+                                  _allColors.add(colorResult.name);
+                                }
+                                if (!_filteredColors.contains(colorResult.name)) {
+                                  _filteredColors.add(colorResult.name);
+                                }
+                                
                                 _selectedColor = colorResult.name;
                                 _customHexColor = colorResult.hex;
-                                _colorSearchController.text = colorResult.name;
+                                _colorSearchController.clear(); // Clear search field
                                 _showApiResults = false;
+                                _apiColorResults.clear();
+                                _isSearchingApi = false;
+                                _showColorSearch = false; // Hide search UI
                               });
+                              
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Selected: ${colorResult.name}'),
@@ -467,8 +519,11 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                         padding: const EdgeInsets.all(12),
                         child: TextButton(
                           onPressed: () {
+                            _searchTimer?.cancel();
                             setState(() {
                               _showApiResults = false;
+                              _apiColorResults.clear();
+                              _isSearchingApi = false;
                             });
                           },
                           child: const Text('Close Results'),
@@ -518,13 +573,15 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             
             // Color Dropdown
             DropdownButtonFormField<String>(
-              value: _selectedColor,
+              value: _filteredColors.contains(_selectedColor) ? _selectedColor : null,
               isExpanded: true,
               menuMaxHeight: 500,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.palette),
-                hintText: 'Select color',
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.palette),
+                hintText: _selectedColor != null && !_filteredColors.contains(_selectedColor) 
+                  ? 'Selected: $_selectedColor (from API)'
+                  : 'Select color',
               ),
               items: _filteredColors.map((String color) {
                 return DropdownMenuItem<String>(
@@ -565,6 +622,64 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 return null;
               },
             ),
+            
+            // Show selected API color if it's not in dropdown
+            if (_selectedColor != null && !_filteredColors.contains(_selectedColor!)) ...[
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade50,
+                  border: Border.all(color: Colors.green.shade300),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: _getDisplayColorForSelected(),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.grey.shade400),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Selected: $_selectedColor',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          if (_customHexColor != null)
+                            Text(
+                              'HEX: $_customHexColor',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _selectedColor = null;
+                          _customHexColor = null;
+                        });
+                      },
+                      child: const Text('Clear'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 20),
             
             // Count Input
