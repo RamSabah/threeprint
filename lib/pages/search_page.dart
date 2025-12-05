@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/spoolman_service.dart';
+import 'filament_detail_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -366,11 +367,11 @@ class _SearchPageState extends State<SearchPage> {
                                 ],
                               ),
                               onTap: () {
-                                // TODO: Navigate to filament details or add to collection
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Selected: ${filament.displayName}'),
-                                    duration: const Duration(seconds: 1),
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => FilamentDetailPage(
+                                      filament: filament,
+                                    ),
                                   ),
                                 );
                               },
