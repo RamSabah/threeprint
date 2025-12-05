@@ -32,7 +32,8 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.surface,
         title: const Text('ThreePrint'),
         leading: Builder(
           builder: (context) => IconButton(
@@ -44,6 +45,7 @@ class _MainNavigationState extends State<MainNavigation> {
       drawer: const AppDrawer(),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Theme.of(context).colorScheme.onPrimary,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).colorScheme.secondary,
         unselectedItemColor: Colors.grey,
