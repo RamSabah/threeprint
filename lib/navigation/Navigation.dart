@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../pages/Home.dart';
 import '../pages/AddFilament.dart';
-import '../pages/search_page.dart';
+import '../pages/Search.dart';
 import '../pages/settings_page.dart';
 import '../widgets/app_drawer.dart';
 

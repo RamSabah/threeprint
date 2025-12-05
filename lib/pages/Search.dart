@@ -280,7 +280,7 @@ class _SearchPageState extends State<SearchPage> {
                   focusNode: _searchFocusNode,
                   decoration: InputDecoration(
                     hintText: 'Search filaments by brand or name...',
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.secondary),
                     suffixIcon: _searchQuery.isNotEmpty || _selectedManufacturer != null
                         ? IconButton(
                             icon: const Icon(Icons.clear),
@@ -289,9 +289,19 @@ class _SearchPageState extends State<SearchPage> {
                         : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
                     ),
                     filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
+                    fillColor: Colors.grey.shade50,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -310,11 +320,22 @@ class _SearchPageState extends State<SearchPage> {
                           initialValue: _selectedManufacturer,
                           hint: const Text('Filter by manufacturer'),
                           decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.business, color: Theme.of(context).colorScheme.secondary),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
                             ),
                             filled: true,
-                            fillColor: Theme.of(context).colorScheme.surface,
+                            fillColor: Colors.grey.shade50,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                           ),
                           items: [
                             const DropdownMenuItem<String>(
@@ -380,20 +401,24 @@ class _SearchPageState extends State<SearchPage> {
                         children: [
                           // Results count header
                           if (_searchResults.isNotEmpty)
-                            SizedBox(
+                            Container(
                               width: double.infinity,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade50,
+                                border: Border(
+                                  bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                                ),
+                              ),
                               child: Text(
                                 'Showing ${_searchResults.length}${_hasMore ? '+' : ''} of $_totalCount results',
                                 style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade700,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
-                          ),
                           // Results list
                           Expanded(
                             child: ListView.builder(
@@ -414,29 +439,43 @@ class _SearchPageState extends State<SearchPage> {
                                 }
                           final filament = _searchResults[index];
                           return Card(
-                            margin: const EdgeInsets.only(bottom: 8),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: Colors.grey.shade200, width: 1),
+                            ),
                             child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                               leading: _buildColorIndicator(filament),
                               title: Text(
                                 filament.displayName,
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
                               ),
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  const SizedBox(height: 4),
                                   Text(
                                     '${filament.material} • ${filament.diameter}mm',
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color: Theme.of(context).colorScheme.secondary,
                                       fontWeight: FontWeight.w500,
+                                      fontSize: 13,
                                     ),
                                   ),
                                   if (filament.extruderTemp != null || filament.bedTemp != null)
-                                    Text(
-                                      'Extruder: ${filament.extruderTemp ?? '?'}°C • Bed: ${filament.bedTemp ?? '?'}°C',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12,
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        'Extruder: ${filament.extruderTemp ?? '?'}°C • Bed: ${filament.bedTemp ?? '?'}°C',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 12,
+                                        ),
                                       ),
                                     ),
                                 ],
@@ -473,7 +512,7 @@ class _SearchPageState extends State<SearchPage> {
                               onTap: () {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => FilamentDetailPage(
+                                    builder: (context) => FilamentDetail(
                                       filament: filament,
                                     ),
                                   ),

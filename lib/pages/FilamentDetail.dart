@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/spoolman_service.dart';
 
-class FilamentDetailPage extends StatelessWidget {
+class FilamentDetail extends StatelessWidget {
   final SpoolmanFilament filament;
 
-  const FilamentDetailPage({
+  const FilamentDetail({
     super.key,
     required this.filament,
   });

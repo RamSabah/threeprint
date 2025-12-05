@@ -196,15 +196,29 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               // Filament Type Dropdown
               const Text(
                 'Filament Type',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedFilamentType,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.category),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                  ),
+                  prefixIcon: Icon(Icons.category, color: Theme.of(context).colorScheme.secondary),
                   hintText: 'Select filament type',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 items: _filamentTypes.map((String type) {
                   return DropdownMenuItem<String>(
@@ -224,15 +238,29 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               // Brand Input Field
               const Text(
                 'Brand',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _brandController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.business),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                  ),
+                  prefixIcon: Icon(Icons.business, color: Theme.of(context).colorScheme.secondary),
                   hintText: 'Enter brand name (e.g., Hatchbox, eSUN)',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 validator: FilamentValidation.validateFilamentBrand,
                 textCapitalization: TextCapitalization.words,
@@ -242,16 +270,17 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               // Color Section with Color Picker
               const Text(
                 'Color',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 8),
               
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.grey.shade50,
+                  border: Border.all(color: Colors.grey.shade200),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,17 +359,31 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               // Count Input
               const Text(
                 'Count',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _countController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.numbers),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                  ),
+                  prefixIcon: Icon(Icons.numbers, color: Theme.of(context).colorScheme.secondary),
                   hintText: 'Enter number of filament units',
                   suffixText: 'units',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 validator: FilamentValidation.validateFilamentCount,
               ),
@@ -348,9 +391,10 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               const SizedBox(height: 20),
               
               // Specifications Section
+              const Divider(height: 40),
               const Text(
                 'Specifications',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
               ),
               const SizedBox(height: 16),
               
@@ -364,16 +408,29 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       children: [
                         const Text(
                           'Weight (g) *',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _weightController,
                           keyboardType: TextInputType.numberWithOptions(decimal: true),
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                            ),
                             hintText: '1000',
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                           ),
                           validator: FilamentValidation.validateWeight,
                         ),
@@ -390,16 +447,29 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       children: [
                         const Text(
                           'Diameter (mm)',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _diameterController,
                           keyboardType: TextInputType.numberWithOptions(decimal: true),
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                            ),
                             hintText: '1.75',
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                           ),
                           validator: FilamentValidation.validateDiameter,
                         ),
@@ -416,16 +486,29 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       children: [
                         const Text(
                           'Quantity',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _quantityController,
                           keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                            ),
                             hintText: '1',
-                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                           ),
                           validator: FilamentValidation.validateQuantity,
                         ),
@@ -438,10 +521,11 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               const SizedBox(height: 20),
               
               // Optional Fields Section
+              const Divider(height: 40),
               // Empty Spool Weight
               const Text(
                 'Empty Spool Weight (g)',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.grey),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 4),
               const Text(
@@ -452,10 +536,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               TextFormField(
                 controller: _emptySpoolWeightController,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                  ),
                   hintText: '200',
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 validator: FilamentValidation.validateEmptySpoolWeight,
               ),
@@ -465,16 +562,30 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               // Cost
               const Text(
                 'Cost',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _costController,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                  ),
+                  prefixIcon: Icon(Icons.attach_money, color: Theme.of(context).colorScheme.secondary),
                   hintText: '25.99',
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 validator: FilamentValidation.validateCost,
               ),
@@ -484,15 +595,29 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               // Storage Location
               const Text(
                 'Storage Location',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _storageLocationController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                  ),
+                  prefixIcon: Icon(Icons.location_on, color: Theme.of(context).colorScheme.secondary),
                   hintText: 'Shelf A, Drawer 2, etc.',
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 validator: FilamentValidation.validateStorageLocation,
                 textCapitalization: TextCapitalization.words,
@@ -503,16 +628,29 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               // Notes
               const Text(
                 'Notes',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _notesController,
                 maxLines: 3,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                  ),
                   hintText: 'Any additional notes about this filament...',
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 validator: FilamentValidation.validateNotes,
                 textCapitalization: TextCapitalization.sentences,
@@ -528,6 +666,10 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       onPressed: _isSaving ? null : _resetForm,
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(color: Colors.grey.shade400, width: 1.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -546,8 +688,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       onPressed: _isSaving ? null : _saveFilament,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.green,
+                        backgroundColor: Theme.of(context).colorScheme.secondary,
                         foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 2,
                       ),
                       child: _isSaving
                           ? const Row(

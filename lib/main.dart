@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: AppColors.secondaryLight,
         appBarTheme: AppBarTheme(
           backgroundColor: AppColors.primaryColor,
-          foregroundColor: AppColors.secondaryDark,
+          foregroundColor: Colors.white,
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
