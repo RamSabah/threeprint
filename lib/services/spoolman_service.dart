@@ -81,6 +81,19 @@ class SpoolmanFilament {
   String get fullName => '$manufacturer $name $material';
 }
 
+/// Search results with pagination info
+class SearchResult {
+  final List<SpoolmanFilament> filaments;
+  final bool hasMore;
+  final int totalCount;
+  
+  SearchResult({
+    required this.filaments,
+    required this.hasMore,
+    required this.totalCount,
+  });
+}
+
 class SpoolmanService {
   static const String _baseUrl = 'https://donkie.github.io/SpoolmanDB';
   static const String _filamentsUrl = '$_baseUrl/filaments.json';
@@ -120,8 +133,8 @@ class SpoolmanService {
     }
   }
 
-  /// Search filaments by manufacturer and name
-  Future<List<SpoolmanFilament>> searchFilaments({
+  /// Search filaments by manufacturer and name with pagination info
+  Future<SearchResult> searchFilaments({
     String? query,
     String? manufacturer,
     String? material,
@@ -184,13 +197,25 @@ class SpoolmanService {
       });
     }
 
-    // Apply pagination
+    // Calculate pagination
+    final totalCount = results.length;
     final startIndex = offset;
     final endIndex = (offset + limit).clamp(0, results.length);
+    final hasMore = endIndex < results.length;
     
-    if (startIndex >= results.length) return [];
+    if (startIndex >= results.length) {
+      return SearchResult(
+        filaments: [],
+        hasMore: false,
+        totalCount: totalCount,
+      );
+    }
     
-    return results.sublist(startIndex, endIndex);
+    return SearchResult(
+      filaments: results.sublist(startIndex, endIndex),
+      hasMore: hasMore,
+      totalCount: totalCount,
+    );
   }
 
   /// Get unique manufacturers

@@ -13,25 +13,33 @@ class _SearchPageState extends State<SearchPage> {
   final SpoolmanService _spoolmanService = SpoolmanService();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
   
   List<SpoolmanFilament> _searchResults = [];
   List<String> _manufacturers = [];
   String? _selectedManufacturer;
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   bool _isLoadingManufacturers = false;
+  bool _hasMore = false;
+  int _totalCount = 0;
   String _searchQuery = '';
+  static const int _pageSize = 20;
   
   @override
   void initState() {
     super.initState();
     _loadManufacturers();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
+    _scrollController.removeListener(_onScroll);
     _searchController.dispose();
+    _scrollController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
   }
@@ -42,7 +50,16 @@ class _SearchPageState extends State<SearchPage> {
       setState(() {
         _searchQuery = query;
       });
-      _performSearch();
+      _performSearch(reset: true);
+    }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= 
+        _scrollController.position.maxScrollExtent * 0.8) {
+      if (_hasMore && !_isLoadingMore && !_isLoading) {
+        _loadMoreResults();
+      }
     }
   }
 
@@ -72,39 +89,92 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Future<void> _performSearch() async {
+  Future<void> _performSearch({bool reset = false}) async {
     if (_searchQuery.isEmpty && _selectedManufacturer == null) {
       setState(() {
         _searchResults = [];
+        _hasMore = false;
+        _totalCount = 0;
         _isLoading = false;
       });
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    if (reset) {
+      setState(() {
+        _isLoading = true;
+        _searchResults = [];
+        _hasMore = false;
+        _totalCount = 0;
+      });
+    }
 
     try {
-      final results = await _spoolmanService.searchFilaments(
+      final result = await _spoolmanService.searchFilaments(
         query: _searchQuery.isNotEmpty ? _searchQuery : null,
         manufacturer: _selectedManufacturer,
-        limit: 100,
+        limit: _pageSize,
+        offset: reset ? 0 : _searchResults.length,
       );
 
       setState(() {
-        _searchResults = results;
+        if (reset) {
+          _searchResults = result.filaments;
+        } else {
+          _searchResults.addAll(result.filaments);
+        }
+        _hasMore = result.hasMore;
+        _totalCount = result.totalCount;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _searchResults = [];
+        if (reset) {
+          _searchResults = [];
+          _hasMore = false;
+          _totalCount = 0;
+        }
       });
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Search failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadMoreResults() async {
+    if (_isLoadingMore || !_hasMore) return;
+    
+    setState(() {
+      _isLoadingMore = true;
+    });
+
+    try {
+      final result = await _spoolmanService.searchFilaments(
+        query: _searchQuery.isNotEmpty ? _searchQuery : null,
+        manufacturer: _selectedManufacturer,
+        limit: _pageSize,
+        offset: _searchResults.length,
+      );
+
+      setState(() {
+        _searchResults.addAll(result.filaments);
+        _hasMore = result.hasMore;
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingMore = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to load more results: $e'),
             backgroundColor: Colors.red,
           ),
         );
@@ -118,6 +188,8 @@ class _SearchPageState extends State<SearchPage> {
       _selectedManufacturer = null;
       _searchResults = [];
       _searchQuery = '';
+      _hasMore = false;
+      _totalCount = 0;
     });
   }
 
@@ -194,7 +266,7 @@ class _SearchPageState extends State<SearchPage> {
               color: Theme.of(context).colorScheme.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withValues(alpha: 0.1),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -219,7 +291,7 @@ class _SearchPageState extends State<SearchPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     filled: true,
-                    fillColor: Theme.of(context).colorScheme.background,
+                    fillColor: Theme.of(context).colorScheme.surface,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -235,14 +307,14 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                         )
                       : DropdownButtonFormField<String>(
-                          value: _selectedManufacturer,
+                          initialValue: _selectedManufacturer,
                           hint: const Text('Filter by manufacturer'),
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             filled: true,
-                            fillColor: Theme.of(context).colorScheme.background,
+                            fillColor: Theme.of(context).colorScheme.surface,
                           ),
                           items: [
                             const DropdownMenuItem<String>(
@@ -260,7 +332,7 @@ class _SearchPageState extends State<SearchPage> {
                             setState(() {
                               _selectedManufacturer = value;
                             });
-                            _performSearch();
+                            _performSearch(reset: true);
                           },
                         ),
                 ),
@@ -304,10 +376,41 @@ class _SearchPageState extends State<SearchPage> {
                           ],
                         ),
                       )
-                    : ListView.builder(
-                        itemCount: _searchResults.length,
-                        padding: const EdgeInsets.all(16),
-                        itemBuilder: (context, index) {
+                        : Column(
+                        children: [
+                          // Results count header
+                          if (_searchResults.isNotEmpty)
+                            SizedBox(
+                              width: double.infinity,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Text(
+                                'Showing ${_searchResults.length}${_hasMore ? '+' : ''} of $_totalCount results',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          // Results list
+                          Expanded(
+                            child: ListView.builder(
+                              controller: _scrollController,
+                              itemCount: _searchResults.length + (_hasMore ? 1 : 0),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              itemBuilder: (context, index) {
+                                if (index >= _searchResults.length) {
+                                  // Loading indicator at the bottom
+                                  return Container(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Center(
+                                      child: _isLoadingMore
+                                          ? const CircularProgressIndicator()
+                                          : const SizedBox.shrink(),
+                                    ),
+                                  );
+                                }
                           final filament = _searchResults[index];
                           return Card(
                             margin: const EdgeInsets.only(bottom: 8),
@@ -375,9 +478,12 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                 );
                               },
+                                ),
+                              );
+                              },
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
           ),
         ],
