@@ -33,7 +33,7 @@ class _MainNavigationState extends State<MainNavigation> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Colors.white,
         title: const Text('ThreePrint'),
         leading: Builder(
           builder: (context) => IconButton(
@@ -48,7 +48,7 @@ class _MainNavigationState extends State<MainNavigation> {
         backgroundColor: Theme.of(context).colorScheme.onPrimary,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).colorScheme.secondary,
-        unselectedItemColor: Colors.grey,
+        unselectedItemColor: Colors.white,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

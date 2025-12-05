@@ -149,30 +149,6 @@ class _HomePageState extends State<HomePage> {
   Widget _buildFilamentsList(List<Filament> filaments) {
     return CustomScrollView(
       slivers: [
-        SliverAppBar(
-          expandedHeight: 120,
-          floating: false,
-          pinned: true,
-          backgroundColor:Theme.of(context).colorScheme.primary,
-          flexibleSpace: FlexibleSpaceBar(
-            title: const Text(
-              'My Filaments',
-              style: TextStyle(color: Colors.white),
-            ),
-            background: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [Color(0xFF09203F), Color(0xFF537895)],
-                ),
-              ),
-              child: const Center(
-                child: Icon(Icons.print, size: 64, color: Colors.white24),
-              ),
-            ),
-          ),
-        ),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -248,7 +224,7 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
           Text(
