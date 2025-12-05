@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'BaseColors.dart';
-import 'navigation/main_navigation.dart';
+import 'navigation/Navigation.dart';
 import 'pages/account_page.dart';
 
 void main() async {
@@ -11,6 +11,14 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   runApp(const MyApp());
+}
+
+// Color Palette
+class AppColors {
+  static const Color primaryColor = Color(0xFF222831);        // Primary color
+  static const Color secondaryDark = Color(0xFF393E46);       // Secondary Dark color
+  static const Color specialColor = Color(0xFFF96D00);        // Buttons and title colors
+  static const Color secondaryLight = Color(0xFFF2F2F2);      // Secondary Light color
 }
 
 class MyApp extends StatelessWidget {
@@ -23,9 +31,31 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF50586C), // Dark blue-gray color as requested
-          secondary: const Color(0xFFFFFFFF),
+        colorScheme: ColorScheme.light(
+          primary: AppColors.primaryColor,
+          secondary: AppColors.specialColor,
+          surface: AppColors.secondaryLight,
+          onPrimary: AppColors.secondaryDark,
+          onSecondary: Colors.white,
+        ),
+        scaffoldBackgroundColor: AppColors.secondaryLight,
+        appBarTheme: AppBarTheme(
+          backgroundColor: AppColors.primaryColor,
+          foregroundColor: AppColors.secondaryDark,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.specialColor,
+            foregroundColor: AppColors.secondaryLight,
+          ),
+        ),
+        floatingActionButtonTheme: FloatingActionButtonThemeData(
+          backgroundColor: AppColors.specialColor,
+          foregroundColor: Colors.white,
+        ),
+        cardTheme: CardThemeData(
+          color: Colors.white,
+          surfaceTintColor: Colors.white,
         ),
       ),
       home: const MainNavigation(),

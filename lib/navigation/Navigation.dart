@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/Home.dart';
-import '../pages/add_filament_page.dart';
+import '../pages/AddFilament.dart';
 import '../pages/search_page.dart';
 import '../pages/settings_page.dart';
 import '../widgets/app_drawer.dart';
@@ -32,7 +32,7 @@ class _MainNavigationState extends State<MainNavigation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Text('ThreePrint'),
         leading: Builder(
           builder: (context) => IconButton(
@@ -45,7 +45,9 @@ class _MainNavigationState extends State<MainNavigation> {
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        selectedItemColor: Theme.of(context).colorScheme.secondary,
+        unselectedItemColor: Colors.grey,
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',

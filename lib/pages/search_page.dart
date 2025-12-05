@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/spoolman_service.dart';
-import 'filament_detail_page.dart';
+import 'FilamentDetail.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
