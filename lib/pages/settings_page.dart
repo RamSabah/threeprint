@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/bambu_lab_integration_widget.dart';
+
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -38,7 +38,7 @@ class SettingsPage extends StatelessWidget {
           const SizedBox(height: 16),
           
           // Bambu Lab Integration Widget
-          const BambuLabIntegrationWidget(),
+
           
           const SizedBox(height: 32),
           
