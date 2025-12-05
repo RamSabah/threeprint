@@ -24,8 +24,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(int.parse(baseColors.ColorGreen.replaceFirst('#', '0xFF'))),
-          secondary: Color(int.parse(baseColors.ColorLight.replaceFirst('#', '0xFF'))),
+          seedColor: const Color(0xFF50586C), // Dark blue-gray color as requested
+          secondary: const Color(0xFFFFFFFF),
         ),
       ),
       home: const MainNavigation(),

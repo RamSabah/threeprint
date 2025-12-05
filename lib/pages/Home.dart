@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../models/filament.dart';
 import '../services/filament_service.dart';
 import '../services/auth_service.dart';
 import 'add_filament_page.dart';
-import 'user_filament_detail_page.dart';
+import 'UserHome.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -38,11 +39,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildWelcomeScreen() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(Icons.print, size: 100, color: Color(0xFF2BAE66)),
+          Icon(Icons.print, size: 100, color: Theme.of(context).colorScheme.primary),
           SizedBox(height: 20),
           Text(
             'Welcome to ThreePrint',
@@ -152,7 +153,7 @@ class _HomePageState extends State<HomePage> {
           expandedHeight: 120,
           floating: false,
           pinned: true,
-          backgroundColor: const Color(0xFF2BAE66),
+          backgroundColor:Theme.of(context).colorScheme.primary,
           flexibleSpace: FlexibleSpaceBar(
             title: const Text(
               'My Filaments',
@@ -161,9 +162,9 @@ class _HomePageState extends State<HomePage> {
             background: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF2BAE66), Color(0xFF1E8B52)],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Color(0xFF09203F), Color(0xFF537895)],
                 ),
               ),
               child: const Center(
@@ -240,14 +241,14 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Column(
         children: [
-          Icon(icon, color: const Color(0xFF2BAE66), size: 24),
+          Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2BAE66),
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           Text(

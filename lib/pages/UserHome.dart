@@ -64,9 +64,9 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
         if (mounted) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Filament deleted successfully'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: const Text('Filament deleted successfully'),
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
         }
