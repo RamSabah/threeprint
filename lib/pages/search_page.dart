@@ -393,6 +393,7 @@ class _SearchPageState extends State<SearchPage> {
                                 ),
                               ),
                             ),
+                          ),
                           // Results list
                           Expanded(
                             child: ListView.builder(
@@ -478,16 +479,16 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                 );
                               },
-                                ),
-                              );
-                              },
                             ),
-                          ),
-                        ],
+                          );
+                        },
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
   }
 }
