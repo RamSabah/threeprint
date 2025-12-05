@@ -76,10 +76,19 @@ class FilamentService {
       final querySnapshot = await _firestore
           .collection(_collection)
           .where('userId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
           .get();
 
-      return querySnapshot.docs
+      // Sort locally by createdAt (descending) since we can't use orderBy without index
+      final docs = querySnapshot.docs.toList()
+        ..sort((a, b) {
+          final aData = a.data() as Map<String, dynamic>;
+          final bData = b.data() as Map<String, dynamic>;
+          final aCreatedAt = (aData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+          final bCreatedAt = (bData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+          return bCreatedAt.compareTo(aCreatedAt); // Descending order
+        });
+
+      return docs
           .map((doc) => Filament.fromFirestore(doc))
           .toList();
     } catch (e) {
@@ -97,11 +106,22 @@ class FilamentService {
     return _firestore
         .collection(_collection)
         .where('userId', isEqualTo: userId)
-        .orderBy('createdAt', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Filament.fromFirestore(doc))
-            .toList());
+        .map((snapshot) {
+          // Sort locally by createdAt (descending) since we can't use orderBy without index
+          final docs = snapshot.docs.toList()
+            ..sort((a, b) {
+              final aData = a.data() as Map<String, dynamic>;
+              final bData = b.data() as Map<String, dynamic>;
+              final aCreatedAt = (aData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+              final bCreatedAt = (bData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+              return bCreatedAt.compareTo(aCreatedAt); // Descending order
+            });
+          
+          return docs
+              .map((doc) => Filament.fromFirestore(doc))
+              .toList();
+        });
   }
 
   /// Update an existing filament
@@ -208,10 +228,19 @@ class FilamentService {
           .collection(_collection)
           .where('userId', isEqualTo: userId)
           .where('type', isEqualTo: type)
-          .orderBy('createdAt', descending: true)
           .get();
 
-      return querySnapshot.docs
+      // Sort locally by createdAt (descending) since we can't use orderBy without index
+      final docs = querySnapshot.docs.toList()
+        ..sort((a, b) {
+          final aData = a.data() as Map<String, dynamic>;
+          final bData = b.data() as Map<String, dynamic>;
+          final aCreatedAt = (aData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+          final bCreatedAt = (bData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+          return bCreatedAt.compareTo(aCreatedAt); // Descending order
+        });
+
+      return docs
           .map((doc) => Filament.fromFirestore(doc))
           .toList();
     } catch (e) {
@@ -231,10 +260,19 @@ class FilamentService {
           .collection(_collection)
           .where('userId', isEqualTo: userId)
           .where('color', isEqualTo: color)
-          .orderBy('createdAt', descending: true)
           .get();
 
-      return querySnapshot.docs
+      // Sort locally by createdAt (descending) since we can't use orderBy without index
+      final docs = querySnapshot.docs.toList()
+        ..sort((a, b) {
+          final aData = a.data() as Map<String, dynamic>;
+          final bData = b.data() as Map<String, dynamic>;
+          final aCreatedAt = (aData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+          final bCreatedAt = (bData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+          return bCreatedAt.compareTo(aCreatedAt); // Descending order
+        });
+
+      return docs
           .map((doc) => Filament.fromFirestore(doc))
           .toList();
     } catch (e) {
