@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/filament_service.dart';
 import '../services/filament_validation.dart';
-import '../widgets/color_picker_widget.dart';
+import '../widgets/ColorPicker.dart';
 
 class AddFilamentPage extends StatefulWidget {
   const AddFilamentPage({super.key});
@@ -320,29 +320,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                         ),
                         Row(
                           children: [
-                            Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: _selectedColor,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Colors.grey.shade400,
-                                  width: 2,
+                            GestureDetector(
+                              onTap: _openColorPicker,
+                              child: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: _selectedColor,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey.shade400,
+                                    width: 2,
+                                  ),
                                 ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            ElevatedButton.icon(
-                              onPressed: _openColorPicker,
-                              icon: const Icon(Icons.palette, size: 18),
-                              label: const Text('Pick Color'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 12,
+                                child: const Icon(
+                                  Icons.palette,
+                                  color: Colors.white,
+                                  size: 24,
                                 ),
                               ),
                             ),
