@@ -313,13 +313,35 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
+  String? _getColorFamilyForFilament(SpoolmanFilament filament) {
+    // Check for gradient (multi-color)
+    if (filament.colorHexes != null && filament.colorHexes!.length > 1) {
+      return 'Gradient';
+    }
+
+    // Check name for special finishes
+    String nameLower = filament.name.toLowerCase();
+    if (nameLower.contains('silver') || nameLower.contains('metallic silver')) {
+      return 'Silver';
+    }
+    if (nameLower.contains('gold') || nameLower.contains('metallic gold')) {
+      return 'Gold';
+    }
+    if (nameLower.contains('skin') || nameLower.contains('flesh')) {
+      return 'Skin';
+    }
+
+    // Use hex color for standard color families
+    return _getColorFamily(filament.colorHex);
+  }
+
   List<SpoolmanFilament> _getFilteredResults() {
     if (_selectedColorFilter == null || _selectedColorFilter == 'All') {
       return _searchResults;
     }
     
     return _searchResults.where((filament) {
-      String? colorFamily = _getColorFamily(filament.colorHex);
+      String? colorFamily = _getColorFamilyForFilament(filament);
       return colorFamily == _selectedColorFilter;
     }).toList();
   }
@@ -1063,6 +1085,80 @@ class _SearchPageState extends State<SearchPage> {
                                                     ),
                                                     const SizedBox(width: 8),
                                                     const Text('Black'),
+                                                  ],
+                                                ),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: 'Silver',
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFC0C0C0),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    const Text('Silver'),
+                                                  ],
+                                                ),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: 'Gold',
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFFFD700),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    const Text('Gold'),
+                                                  ],
+                                                ),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: 'Skin',
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(0xFFFFDBAC),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    const Text('Skin'),
+                                                  ],
+                                                ),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: 'Gradient',
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 20,
+                                                      height: 20,
+                                                      decoration: BoxDecoration(
+                                                        gradient: const LinearGradient(
+                                                          colors: [
+                                                            Color(0xFFE53935),
+                                                            Color(0xFFFFEB3B),
+                                                            Color(0xFF2196F3),
+                                                          ],
+                                                        ),
+                                                        borderRadius: BorderRadius.circular(4),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    const Text('Gradient'),
                                                   ],
                                                 ),
                                               ),
