@@ -28,6 +28,7 @@ class _SearchPageState extends State<SearchPage> {
   bool _showingAllManufacturers = false;
   bool _sortByBrightness = false;
   String _viewMode = 'manufacturers'; // 'manufacturers' or 'colors'
+  String? _selectedColorFilter; // Filter by color family
   static const int _pageSize = 20;
   
   @override
@@ -225,6 +226,7 @@ class _SearchPageState extends State<SearchPage> {
       _showingAllManufacturers = false;
       _viewMode = 'manufacturers';
       _sortByBrightness = false;
+      _selectedColorFilter = null;
     });
   }
 
@@ -241,6 +243,135 @@ class _SearchPageState extends State<SearchPage> {
       return Colors.grey;
     } catch (e) {
       return Colors.grey;
+    }
+  }
+
+  String? _getColorFamily(String? hexColor) {
+    if (hexColor == null || hexColor.isEmpty) return null;
+    
+    try {
+      String cleanHex = hexColor.replaceAll('#', '');
+      if (cleanHex.length != 6) return null;
+      
+      int r = int.parse(cleanHex.substring(0, 2), radix: 16);
+      int g = int.parse(cleanHex.substring(2, 4), radix: 16);
+      int b = int.parse(cleanHex.substring(4, 6), radix: 16);
+      
+      // Calculate max, min for saturation and value (brightness)
+      int max = [r, g, b].reduce((a, b) => a > b ? a : b);
+      int min = [r, g, b].reduce((a, b) => a < b ? a : b);
+      int delta = max - min;
+      
+      // Check for grayscale (low saturation)
+      double saturation = max == 0 ? 0 : delta / max;
+      
+      // Grayscale detection
+      if (saturation < 0.2) {
+        if (max > 220) return 'White';
+        if (max < 60) return 'Black';
+        return 'Gray';
+      }
+      
+      // Brown detection (low brightness with balanced RGB)
+      if (max < 140 && r > 50 && g > 30 && b > 20 && r > g && g >= b) {
+        return 'Brown';
+      }
+      
+      // Find dominant hue
+      if (r >= g && r >= b) {
+        // Red-ish colors
+        if (g > b + 40 && g > 120) {
+          return 'Yellow';
+        } else if (g > b + 20 && r > 180) {
+          return 'Orange';
+        } else if (b > 100 && b > g - 30) {
+          return 'Pink';
+        } else {
+          return 'Red';
+        }
+      } else if (g >= r && g >= b) {
+        // Green-ish colors
+        if (r > b + 40 && r > 120) {
+          return 'Yellow';
+        } else if (b > r + 40 && b > 120) {
+          return 'Cyan';
+        } else {
+          return 'Green';
+        }
+      } else {
+        // Blue-ish colors
+        if (r > g + 30 && r > 100) {
+          return 'Purple';
+        } else if (g > r + 40 && g > 120) {
+          return 'Cyan';
+        } else {
+          return 'Blue';
+        }
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<SpoolmanFilament> _getFilteredResults() {
+    if (_selectedColorFilter == null || _selectedColorFilter == 'All') {
+      return _searchResults;
+    }
+    
+    return _searchResults.where((filament) {
+      String? colorFamily = _getColorFamily(filament.colorHex);
+      return colorFamily == _selectedColorFilter;
+    }).toList();
+  }
+
+  Future<void> _applyColorFilter(String? filter) async {
+    setState(() {
+      _selectedColorFilter = filter;
+    });
+
+    // If a specific color is selected, load all results first
+    if (filter != null && filter != 'All') {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        List<SpoolmanFilament> allResults = List.from(_searchResults);
+        
+        // Keep loading until we have all results
+        while (_hasMore) {
+          final result = await _spoolmanService.searchFilaments(
+            query: (_searchQuery.isNotEmpty && !_showingAllManufacturers) ? _searchQuery : null,
+            manufacturer: _showingAllManufacturers ? null : _selectedManufacturer,
+            limit: _pageSize,
+            offset: allResults.length,
+          );
+          
+          allResults.addAll(result.filaments);
+          
+          if (!result.hasMore) {
+            break;
+          }
+        }
+        
+        setState(() {
+          _searchResults = allResults;
+          _hasMore = false; // All results are loaded
+          _isLoading = false;
+        });
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load all colors: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -703,8 +834,48 @@ class _SearchPageState extends State<SearchPage> {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
+                                  // Color filter dropdown (only show when viewing all colors)
+                                  if (_showingAllManufacturers) ...[
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: Colors.grey.shade300),
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: _selectedColorFilter ?? 'All',
+                                        underline: const SizedBox(),
+                                        icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
+                                        style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        onChanged: (String? newValue) {
+                                          _applyColorFilter(newValue == 'All' ? null : newValue);
+                                        },
+                                        items: const [
+                                          DropdownMenuItem(value: 'All', child: Text('All Colors')),
+                                          DropdownMenuItem(value: 'Red', child: Text('Red')),
+                                          DropdownMenuItem(value: 'Orange', child: Text('Orange')),
+                                          DropdownMenuItem(value: 'Yellow', child: Text('Yellow')),
+                                          DropdownMenuItem(value: 'Green', child: Text('Green')),
+                                          DropdownMenuItem(value: 'Cyan', child: Text('Cyan')),
+                                          DropdownMenuItem(value: 'Blue', child: Text('Blue')),
+                                          DropdownMenuItem(value: 'Purple', child: Text('Purple')),
+                                          DropdownMenuItem(value: 'Pink', child: Text('Pink')),
+                                          DropdownMenuItem(value: 'Brown', child: Text('Brown')),
+                                          DropdownMenuItem(value: 'White', child: Text('White')),
+                                          DropdownMenuItem(value: 'Gray', child: Text('Gray')),
+                                          DropdownMenuItem(value: 'Black', child: Text('Black')),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                  ],
                                   Text(
-                                    'Showing ${_searchResults.length}${_hasMore ? '+' : ''} of $_totalCount results',
+                                    'Showing ${_getFilteredResults().length} of $_totalCount results',
                                     style: TextStyle(
                                       color: Colors.grey.shade700,
                                       fontSize: 13,
@@ -762,10 +933,11 @@ class _SearchPageState extends State<SearchPage> {
                                 crossAxisSpacing: 4,
                                 mainAxisSpacing: 4,
                               ),
-                              itemCount: _searchResults.length + (_hasMore ? 1 : 0),
+                              itemCount: _getFilteredResults().length + (_hasMore && _selectedColorFilter == null ? 1 : 0),
                               padding: const EdgeInsets.all(8),
                               itemBuilder: (context, index) {
-                                if (index >= _searchResults.length) {
+                                final filteredResults = _getFilteredResults();
+                                if (index >= filteredResults.length) {
                                   // Loading indicator at the bottom
                                   return Container(
                                     padding: const EdgeInsets.all(16),
@@ -776,7 +948,7 @@ class _SearchPageState extends State<SearchPage> {
                                     ),
                                   );
                                 }
-                          final filament = _searchResults[index];
+                          final filament = filteredResults[index];
                           return InkWell(
                             onTap: () {
                               Navigator.of(context).push(
