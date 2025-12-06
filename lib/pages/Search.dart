@@ -421,7 +421,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ),
                 // Show selected manufacturer or search status
-                if (_selectedManufacturer != null || _searchQuery.isNotEmpty || _showingAllManufacturers) ...[
+                if (_selectedManufacturer != null || _searchQuery.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -432,26 +432,6 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     child: Row(
                       children: [
-                        if (_showingAllManufacturers && _selectedManufacturer == null && _searchQuery.isEmpty) ...[
-                          Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
-                            ),
-                            child: Icon(
-                              Icons.apps,
-                              size: 14,
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Showing: All Manufacturers',
-                            style: TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ],
                         if (_selectedManufacturer != null) ...[
                           Container(
                             width: 24,
@@ -663,7 +643,7 @@ class _SearchPageState extends State<SearchPage> {
                       )
                         : Column(
                         children: [
-                          // Results count header
+                          // Results count header with dropdown
                           if (_searchResults.isNotEmpty)
                             Container(
                               width: double.infinity,
@@ -676,6 +656,53 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                               child: Row(
                                 children: [
+                                  // Dropdown button
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: Colors.grey.shade300),
+                                    ),
+                                    child: DropdownButton<String>(
+                                      value: _viewMode,
+                                      underline: const SizedBox(),
+                                      icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
+                                      style: TextStyle(
+                                        color: Colors.grey.shade700,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      onChanged: (String? newValue) {
+                                        if (newValue != null) {
+                                          setState(() {
+                                            _viewMode = newValue;
+                                            if (newValue == 'manufacturers') {
+                                              // Reset to manufacturer view
+                                              _selectedManufacturer = null;
+                                              _searchResults = [];
+                                              _showingAllManufacturers = false;
+                                              _sortByBrightness = false;
+                                            } else if (newValue == 'colors') {
+                                              _selectedManufacturer = null;
+                                              _performSearch(reset: true, showAll: true);
+                                            }
+                                          });
+                                        }
+                                      },
+                                      items: const [
+                                        DropdownMenuItem(
+                                          value: 'manufacturers',
+                                          child: Text('Manufacturers'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'colors',
+                                          child: Text('All Colors'),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
                                   Text(
                                     'Showing ${_searchResults.length}${_hasMore ? '+' : ''} of $_totalCount results',
                                     style: TextStyle(
