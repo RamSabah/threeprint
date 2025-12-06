@@ -522,15 +522,6 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                             child: Row(
                               children: [
-                                Text(
-                                  'Select a Manufacturer (${_manufacturers.length} available)',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade700,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const Spacer(),
                                 // Dropdown button
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8),
