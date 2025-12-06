@@ -62,7 +62,7 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
-            label: 'Add Filament',
+            label: 'Custom',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.search),

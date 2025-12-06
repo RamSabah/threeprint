@@ -130,6 +130,18 @@ class FilamentService {
     String? type,
     String? color,
     int? count,
+    String? brand,
+    double? weight,
+    double? diameter,
+    int? quantity,
+    double? emptySpoolWeight,
+    bool clearEmptySpoolWeight = false,
+    double? cost,
+    bool clearCost = false,
+    String? storageLocation,
+    bool clearStorageLocation = false,
+    String? notes,
+    bool clearNotes = false,
   }) async {
     try {
       final userId = _currentUserId;
@@ -144,6 +156,35 @@ class FilamentService {
       if (type != null) updateData['type'] = type;
       if (color != null) updateData['color'] = color;
       if (count != null) updateData['count'] = count;
+      if (brand != null) updateData['brand'] = brand;
+      if (weight != null) updateData['weight'] = weight;
+      if (diameter != null) updateData['diameter'] = diameter;
+      if (quantity != null) updateData['quantity'] = quantity;
+      
+      // Handle optional fields that can be cleared or set
+      if (clearEmptySpoolWeight) {
+        updateData['emptySpoolWeight'] = FieldValue.delete();
+      } else if (emptySpoolWeight != null) {
+        updateData['emptySpoolWeight'] = emptySpoolWeight;
+      }
+      
+      if (clearCost) {
+        updateData['cost'] = FieldValue.delete();
+      } else if (cost != null) {
+        updateData['cost'] = cost;
+      }
+      
+      if (clearStorageLocation) {
+        updateData['storageLocation'] = FieldValue.delete();
+      } else if (storageLocation != null) {
+        updateData['storageLocation'] = storageLocation;
+      }
+      
+      if (clearNotes) {
+        updateData['notes'] = FieldValue.delete();
+      } else if (notes != null) {
+        updateData['notes'] = notes;
+      }
 
       await _firestore
           .collection(_collection)

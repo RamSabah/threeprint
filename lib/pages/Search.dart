@@ -24,6 +24,7 @@ class _SearchPageState extends State<SearchPage> {
   bool _hasMore = false;
   int _totalCount = 0;
   String _searchQuery = '';
+  bool _showingAllManufacturers = false;
   static const int _pageSize = 20;
   
   @override
@@ -89,15 +90,26 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Future<void> _performSearch({bool reset = false}) async {
-    if (_searchQuery.isEmpty && _selectedManufacturer == null) {
+  Future<void> _performSearch({bool reset = false, bool showAll = false}) async {
+    if (_searchQuery.isEmpty && _selectedManufacturer == null && !showAll) {
       setState(() {
         _searchResults = [];
         _hasMore = false;
         _totalCount = 0;
         _isLoading = false;
+        _showingAllManufacturers = false;
       });
       return;
+    }
+    
+    if (showAll) {
+      setState(() {
+        _showingAllManufacturers = true;
+      });
+    } else {
+      setState(() {
+        _showingAllManufacturers = false;
+      });
     }
 
     if (reset) {
@@ -190,6 +202,7 @@ class _SearchPageState extends State<SearchPage> {
       _searchQuery = '';
       _hasMore = false;
       _totalCount = 0;
+      _showingAllManufacturers = false;
     });
   }
 
@@ -447,7 +460,7 @@ class _SearchPageState extends State<SearchPage> {
                                         setState(() {
                                           _selectedManufacturer = null;
                                         });
-                                        _performSearch(reset: true);
+                                        _performSearch(reset: true, showAll: true);
                                       },
                                     ),
                                   );
@@ -508,6 +521,7 @@ class _SearchPageState extends State<SearchPage> {
                                     onTap: () {
                                       setState(() {
                                         _selectedManufacturer = manufacturer;
+                                        _showingAllManufacturers = false;
                                       });
                                       _performSearch(reset: true);
                                     },
@@ -530,7 +544,7 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              _searchQuery.isEmpty && _selectedManufacturer == null
+                              _searchQuery.isEmpty && _selectedManufacturer == null && !_showingAllManufacturers
                                   ? 'Start typing to search filaments'
                                   : 'No filaments found',
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(

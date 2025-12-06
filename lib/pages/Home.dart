@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> {
               );
             },
             icon: const Icon(Icons.add),
-            label: const Text('Add Filament'),
+            label: const Text('Custom'),
           ),
         ],
       ),

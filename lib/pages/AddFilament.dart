@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import '../services/filament_service.dart';
 import '../services/filament_validation.dart';
 import '../widgets/ColorPicker.dart';
+import '../models/filament.dart';
 
 class AddFilamentPage extends StatefulWidget {
-  const AddFilamentPage({super.key});
+  final Filament? filamentToEdit;
+  
+  const AddFilamentPage({super.key, this.filamentToEdit});
 
   @override
   State<AddFilamentPage> createState() => _AddFilamentPageState();
@@ -30,7 +33,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   bool _isNotesFocused = false;
   final FilamentService _filamentService = FilamentService();
   
-  final List<String> _filamentTypes = ['PLA', 'ABS', 'PETG', 'TPU', 'WOOD', 'ASA', 'PC', 'Other'];
+  final List<String> _filamentTypes = ['PLA', 'PLA+', 'ABS', 'PETG', 'TPU', 'WOOD', 'ASA', 'PC', 'Other'];
 
   @override
   void initState() {
@@ -40,6 +43,43 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
         _isNotesFocused = _notesFocusNode.hasFocus;
       });
     });
+    
+    // Initialize form with existing filament data if editing
+    if (widget.filamentToEdit != null) {
+      _initializeFormForEditing();
+    }
+  }
+  
+  void _initializeFormForEditing() {
+    final filament = widget.filamentToEdit!;
+    
+    // Set filament type, but add to list if it doesn't exist
+    if (!_filamentTypes.contains(filament.type)) {
+      _filamentTypes.insert(_filamentTypes.length - 1, filament.type); // Insert before 'Other'
+    }
+    _selectedFilamentType = filament.type;
+    _countController.text = filament.count.toString();
+    _brandController.text = filament.brand;
+    _weightController.text = filament.weight.toString();
+    _diameterController.text = filament.diameter.toString();
+    _quantityController.text = filament.quantity.toString();
+    _emptySpoolWeightController.text = filament.emptySpoolWeight?.toString() ?? '';
+    _costController.text = filament.cost?.toString() ?? '';
+    _storageLocationController.text = filament.storageLocation ?? '';
+    _notesController.text = filament.notes ?? '';
+    
+    // Initialize color from hex string
+    try {
+      if (filament.color.isNotEmpty) {
+        String cleanHex = filament.color.replaceAll('#', '');
+        if (cleanHex.length == 6) {
+          _selectedColor = Color(int.parse('FF$cleanHex', radix: 16));
+          _selectedColorName = ColorPickerUtils.getColorName(_selectedColor);
+        }
+      }
+    } catch (e) {
+      // Keep default color if parsing fails
+    }
   }
 
   @override
@@ -82,43 +122,90 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
         // Get the final color value
         final String finalColor = ColorPickerUtils.colorToHex(_selectedColor);
         
-        // Save to Firestore
-        final filamentId = await _filamentService.saveFilament(
-          type: _selectedFilamentType!,
-          color: finalColor,
-          count: int.parse(_countController.text),
-          brand: _brandController.text,
-          weight: double.parse(_weightController.text),
-          diameter: double.parse(_diameterController.text),
-          quantity: int.parse(_quantityController.text),
-          emptySpoolWeight: _emptySpoolWeightController.text.isNotEmpty 
-              ? double.tryParse(_emptySpoolWeightController.text) 
-              : null,
-          cost: _costController.text.isNotEmpty 
-              ? double.tryParse(_costController.text) 
-              : null,
-          storageLocation: _storageLocationController.text.isNotEmpty 
-              ? _storageLocationController.text.trim() 
-              : null,
-          notes: _notesController.text.isNotEmpty 
-              ? _notesController.text.trim() 
-              : null,
-        );
-
-        // Show success message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Filament saved successfully: ${_brandController.text} $_selectedFilamentType, $_selectedColorName, ${_countController.text} units',
-              ),
-              backgroundColor: Colors.green,
-              duration: const Duration(seconds: 3),
-            ),
+        if (widget.filamentToEdit != null) {
+          // Update existing filament
+          final originalFilament = widget.filamentToEdit!;
+          await _filamentService.updateFilament(
+            filamentId: originalFilament.id,
+            type: _selectedFilamentType!,
+            color: finalColor,
+            count: int.parse(_countController.text),
+            brand: _brandController.text,
+            weight: double.parse(_weightController.text),
+            diameter: double.parse(_diameterController.text),
+            quantity: int.parse(_quantityController.text),
+            emptySpoolWeight: _emptySpoolWeightController.text.isNotEmpty 
+                ? double.tryParse(_emptySpoolWeightController.text) 
+                : null,
+            clearEmptySpoolWeight: originalFilament.emptySpoolWeight != null && _emptySpoolWeightController.text.isEmpty,
+            cost: _costController.text.isNotEmpty 
+                ? double.tryParse(_costController.text) 
+                : null,
+            clearCost: originalFilament.cost != null && _costController.text.isEmpty,
+            storageLocation: _storageLocationController.text.isNotEmpty 
+                ? _storageLocationController.text.trim() 
+                : null,
+            clearStorageLocation: originalFilament.storageLocation != null && _storageLocationController.text.isEmpty,
+            notes: _notesController.text.isNotEmpty 
+                ? _notesController.text.trim() 
+                : null,
+            clearNotes: originalFilament.notes != null && _notesController.text.isEmpty,
           );
           
-          // Clear form after saving
-          _resetForm();
+          // Show success message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Filament updated successfully: ${_brandController.text} $_selectedFilamentType',
+                ),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+            
+            // Go back after updating
+            Navigator.of(context).pop(true);
+          }
+        } else {
+          // Save new filament
+          await _filamentService.saveFilament(
+            type: _selectedFilamentType!,
+            color: finalColor,
+            count: int.parse(_countController.text),
+            brand: _brandController.text,
+            weight: double.parse(_weightController.text),
+            diameter: double.parse(_diameterController.text),
+            quantity: int.parse(_quantityController.text),
+            emptySpoolWeight: _emptySpoolWeightController.text.isNotEmpty 
+                ? double.tryParse(_emptySpoolWeightController.text) 
+                : null,
+            cost: _costController.text.isNotEmpty 
+                ? double.tryParse(_costController.text) 
+                : null,
+            storageLocation: _storageLocationController.text.isNotEmpty 
+                ? _storageLocationController.text.trim() 
+                : null,
+            notes: _notesController.text.isNotEmpty 
+                ? _notesController.text.trim() 
+                : null,
+          );
+
+          // Show success message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Filament saved successfully: ${_brandController.text} $_selectedFilamentType, $_selectedColorName, ${_countController.text} units',
+                ),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+            
+            // Clear form after saving
+            _resetForm();
+          }
         }
       } catch (e) {
         // Show error message
@@ -126,7 +213,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Failed to save filament: ${e.toString()}',
+                widget.filamentToEdit != null 
+                  ? 'Failed to update filament: ${e.toString()}'
+                  : 'Failed to save filament: ${e.toString()}',
               ),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 5),
@@ -196,13 +285,15 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           },
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Add New Filament',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        Text(
+                          widget.filamentToEdit != null ? 'Edit Filament' : 'Add New Filament',
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
-                        const Text(
-                          'Track your filament inventory',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        Text(
+                          widget.filamentToEdit != null 
+                              ? 'Update your filament details'
+                              : 'Track your filament inventory',
+                          style: const TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -685,7 +776,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _isSaving ? null : _resetForm,
+                      onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: Colors.grey.shade400, width: 1.5),
@@ -696,9 +787,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.refresh),
+                          Icon(Icons.close),
                           SizedBox(width: 8),
-                          Text('Reset', style: TextStyle(fontSize: 16)),
+                          Text('Cancel', style: TextStyle(fontSize: 16)),
                         ],
                       ),
                     ),
@@ -733,62 +824,22 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                 Text('Saving...', style: TextStyle(fontSize: 16)),
                               ],
                             )
-                          : const Row(
+                          : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.save),
-                                SizedBox(width: 8),
-                                Text('Save Filament', style: TextStyle(fontSize: 16)),
+                                const Icon(Icons.save),
+                                const SizedBox(width: 8),
+                                Text(
+                                  widget.filamentToEdit != null ? 'Update Filament' : 'Save Filament',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
                               ],
                             ),
                     ),
                   ),
                 ],
               ),
-              
-              const SizedBox(height: 20),
-              
-              // Info Card
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.shade200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.info, color: Colors.blue.shade700, size: 20),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Information',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blue.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '• Use the color picker to select the exact color of your filament\\n'
-                      '• The color will be saved with both the name and HEX value\\n'
-                      '• All filaments are linked to your account for secure storage\\n'
-                      '• You can track inventory across multiple devices',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.blue.shade600,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
             ],
           ),
         ),

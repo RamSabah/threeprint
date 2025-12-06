@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../models/filament.dart';
 import '../services/filament_service.dart';
+import 'AddFilament.dart';
 
 class UserFilamentDetailPage extends StatefulWidget {
   final Filament filament;
@@ -31,6 +31,19 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
       return Colors.grey;
     } catch (e) {
       return Colors.grey;
+    }
+  }
+
+  Future<void> _editFilament() async {
+    final result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (context) => AddFilamentPage(filamentToEdit: widget.filament),
+      ),
+    );
+
+    // If the filament was updated, go back to refresh the parent page
+    if (result == true && mounted) {
+      Navigator.of(context).pop(true);
     }
   }
 
@@ -123,6 +136,11 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
             ),
             actions: [
               IconButton(
+                onPressed: _editFilament,
+                icon: const Icon(Icons.edit, color: Colors.white),
+                tooltip: 'Edit Filament',
+              ),
+              IconButton(
                 onPressed: _isDeleting ? null : _deleteFilament,
                 icon: _isDeleting
                     ? const SizedBox(
@@ -134,6 +152,7 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
                         ),
                       )
                     : const Icon(Icons.delete, color: Colors.white),
+                tooltip: 'Delete Filament',
               ),
             ],
           ),
