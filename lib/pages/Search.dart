@@ -25,6 +25,7 @@ class _SearchPageState extends State<SearchPage> {
   int _totalCount = 0;
   String _searchQuery = '';
   bool _showingAllManufacturers = false;
+  bool _sortByBrightness = false;
   static const int _pageSize = 20;
   
   @override
@@ -219,6 +220,87 @@ class _SearchPageState extends State<SearchPage> {
       return Colors.grey;
     } catch (e) {
       return Colors.grey;
+    }
+  }
+
+  double _getColorBrightness(String? hexColor) {
+    if (hexColor == null || hexColor.isEmpty) {
+      return 128; // Default mid-brightness for grey
+    }
+    try {
+      String cleanHex = hexColor.replaceAll('#', '');
+      if (cleanHex.length == 6) {
+        int r = int.parse(cleanHex.substring(0, 2), radix: 16);
+        int g = int.parse(cleanHex.substring(2, 4), radix: 16);
+        int b = int.parse(cleanHex.substring(4, 6), radix: 16);
+        // Calculate Euclidean distance from white (255, 255, 255)
+        // Smaller distance = closer to white (lighter)
+        double distanceFromWhite = ((255 - r) * (255 - r) + 
+                                    (255 - g) * (255 - g) + 
+                                    (255 - b) * (255 - b)).toDouble();
+        return distanceFromWhite;
+      }
+      return 128;
+    } catch (e) {
+      return 128;
+    }
+  }
+
+  void _toggleSortByBrightness() async {
+    setState(() {
+      _sortByBrightness = !_sortByBrightness;
+    });
+    
+    if (_sortByBrightness) {
+      // Load all results before sorting
+      setState(() {
+        _isLoading = true;
+      });
+      
+      try {
+        List<SpoolmanFilament> allResults = List.from(_searchResults);
+        
+        // Keep loading until we have all results
+        while (_hasMore) {
+          final result = await _spoolmanService.searchFilaments(
+            query: (_searchQuery.isNotEmpty && !_showingAllManufacturers) ? _searchQuery : null,
+            manufacturer: _showingAllManufacturers ? null : _selectedManufacturer,
+            limit: _pageSize,
+            offset: allResults.length,
+          );
+          
+          allResults.addAll(result.filaments);
+          
+          if (!result.hasMore) {
+            break;
+          }
+        }
+        
+        // Sort all results by brightness
+        allResults.sort((a, b) {
+          double distanceA = _getColorBrightness(a.colorHex);
+          double distanceB = _getColorBrightness(b.colorHex);
+          return distanceA.compareTo(distanceB);
+        });
+        
+        setState(() {
+          _searchResults = allResults;
+          _hasMore = false; // All results are loaded
+          _isLoading = false;
+        });
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to load all results: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -599,13 +681,55 @@ class _SearchPageState extends State<SearchPage> {
                                   bottom: BorderSide(color: Colors.grey.shade200, width: 1),
                                 ),
                               ),
-                              child: Text(
-                                'Showing ${_searchResults.length}${_hasMore ? '+' : ''} of $_totalCount results',
-                                style: TextStyle(
-                                  color: Colors.grey.shade700,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'Showing ${_searchResults.length}${_hasMore ? '+' : ''} of $_totalCount results',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  // Sort button
+                                  Material(
+                                    color: _sortByBrightness 
+                                        ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: InkWell(
+                                      onTap: _toggleSortByBrightness,
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              _sortByBrightness ? Icons.sort : Icons.sort_outlined,
+                                              size: 18,
+                                              color: _sortByBrightness 
+                                                  ? Theme.of(context).colorScheme.secondary
+                                                  : Colors.grey.shade600,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              'Sort',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: _sortByBrightness ? FontWeight.w600 : FontWeight.normal,
+                                                color: _sortByBrightness 
+                                                    ? Theme.of(context).colorScheme.secondary
+                                                    : Colors.grey.shade600,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           // Results list
