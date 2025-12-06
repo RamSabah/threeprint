@@ -17,6 +17,7 @@ class _SearchPageState extends State<SearchPage> {
   
   List<SpoolmanFilament> _searchResults = [];
   List<String> _manufacturers = [];
+  Map<String, int> _manufacturerCounts = {}; // Store filament counts per manufacturer
   String? _selectedManufacturer;
   bool _isLoading = false;
   bool _isLoadingMore = false;
@@ -73,8 +74,25 @@ class _SearchPageState extends State<SearchPage> {
 
     try {
       final manufacturers = await _spoolmanService.getManufacturers();
+      
+      // Fetch count for each manufacturer
+      Map<String, int> counts = {};
+      for (String manufacturer in manufacturers) {
+        try {
+          final result = await _spoolmanService.searchFilaments(
+            manufacturer: manufacturer,
+            limit: 1,
+            offset: 0,
+          );
+          counts[manufacturer] = result.totalCount;
+        } catch (e) {
+          counts[manufacturer] = 0;
+        }
+      }
+      
       setState(() {
         _manufacturers = manufacturers;
+        _manufacturerCounts = counts;
         _isLoadingManufacturers = false;
       });
     } catch (e) {
@@ -569,9 +587,7 @@ class _SearchPageState extends State<SearchPage> {
                               padding: const EdgeInsets.all(16),
                               itemBuilder: (context, index) {
                                 final manufacturer = _manufacturers[index];
-                                final firstLetter = manufacturer.isNotEmpty ? manufacturer[0].toUpperCase() : '?';
-                                final colorIndex = manufacturer.hashCode % Colors.primaries.length;
-                                final manufacturerColor = Colors.primaries[colorIndex.abs()];
+                                final filamentCount = _manufacturerCounts[manufacturer] ?? 0;
                                 
                                 return Card(
                                   elevation: 0,
@@ -589,39 +605,29 @@ class _SearchPageState extends State<SearchPage> {
                                     },
                                     borderRadius: BorderRadius.circular(12),
                                     child: Container(
-                                      padding: const EdgeInsets.all(12),
+                                      padding: const EdgeInsets.all(16),
                                       child: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Container(
-                                            width: 50,
-                                            height: 50,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: manufacturerColor.withValues(alpha: 0.1),
-                                              border: Border.all(color: manufacturerColor, width: 2),
-                                            ),
-                                            child: Center(
-                                              child: Text(
-                                                firstLetter,
-                                                style: TextStyle(
-                                                  fontSize: 22,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: manufacturerColor,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
                                           Text(
                                             manufacturer,
                                             style: const TextStyle(
                                               fontWeight: FontWeight.w600,
-                                              fontSize: 13,
+                                              fontSize: 15,
                                             ),
                                             textAlign: TextAlign.center,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            '$filamentCount filament${filamentCount != 1 ? 's' : ''}',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Theme.of(context).colorScheme.secondary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            textAlign: TextAlign.center,
                                           ),
                                         ],
                                       ),
