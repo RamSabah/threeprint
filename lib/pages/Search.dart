@@ -304,69 +304,221 @@ class _SearchPageState extends State<SearchPage> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Manufacturer Filter
-                Container(
-                  width: double.infinity,
-                  child: _isLoadingManufacturers
-                      ? const Center(
-                          child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                // Show selected manufacturer or search status
+                if (_selectedManufacturer != null || _searchQuery.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        if (_selectedManufacturer != null) ...[
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.primaries[(_selectedManufacturer?.hashCode ?? 0) % Colors.primaries.length].withValues(alpha: 0.2),
+                            ),
+                            child: Center(
+                              child: Text(
+                                _selectedManufacturer![0].toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.primaries[(_selectedManufacturer?.hashCode ?? 0) % Colors.primaries.length],
+                                ),
+                              ),
+                            ),
                           ),
-                        )
-                      : DropdownButtonFormField<String>(
-                          initialValue: _selectedManufacturer,
-                          hint: const Text('Filter by manufacturer'),
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.business, color: Theme.of(context).colorScheme.secondary),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey.shade50,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Showing: $_selectedManufacturer',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
                           ),
-                          items: [
-                            const DropdownMenuItem<String>(
-                              value: null,
-                              child: Text('All Manufacturers'),
+                        ],
+                        if (_searchQuery.isNotEmpty && _selectedManufacturer != null)
+                          const Text(' • '),
+                        if (_searchQuery.isNotEmpty)
+                          Expanded(
+                            child: Text(
+                              'Search: "$_searchQuery"',
+                              style: const TextStyle(fontStyle: FontStyle.italic),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            ..._manufacturers.map((manufacturer) {
-                              return DropdownMenuItem<String>(
-                                value: manufacturer,
-                                child: Text(manufacturer),
-                              );
-                            }),
-                          ],
-                          onChanged: (String? value) {
-                            setState(() {
-                              _selectedManufacturer = value;
-                            });
-                            _performSearch(reset: true);
-                          },
+                          ),
+                        IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: _clearSearch,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
                         ),
-                ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
-          // Results
+          // Results or Manufacturer Selection
           Expanded(
             child: _isLoading
                 ? const Center(
                     child: CircularProgressIndicator(),
                   )
-                : _searchResults.isEmpty
+                : _selectedManufacturer == null && _searchQuery.isEmpty
+                    ? // Show manufacturer list when no search or manufacturer selected
+                      Column(
+                        children: [
+                          // Manufacturer list header
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade50,
+                              border: Border(
+                                bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                              ),
+                            ),
+                            child: Text(
+                              'Select a Manufacturer (${_manufacturers.length} available)',
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          // Manufacturer list
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: _manufacturers.length + 1, // +1 for "All" option
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              itemBuilder: (context, index) {
+                                if (index == 0) {
+                                  // "All" option
+                                  return Card(
+                                    margin: const EdgeInsets.only(bottom: 12, top: 12),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      side: BorderSide(color: Colors.grey.shade200, width: 1),
+                                    ),
+                                    child: ListTile(
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      leading: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                                          border: Border.all(color: Theme.of(context).colorScheme.secondary, width: 1),
+                                        ),
+                                        child: Icon(
+                                          Icons.apps,
+                                          color: Theme.of(context).colorScheme.secondary,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      title: const Text(
+                                        'All Manufacturers',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      subtitle: Text(
+                                        'Browse all available filaments',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                      trailing: Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 16,
+                                        color: Colors.grey.shade400,
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedManufacturer = null;
+                                        });
+                                        _performSearch(reset: true);
+                                      },
+                                    ),
+                                  );
+                                }
+                                
+                                final manufacturer = _manufacturers[index - 1];
+                                final firstLetter = manufacturer.isNotEmpty ? manufacturer[0].toUpperCase() : '?';
+                                final colorIndex = manufacturer.hashCode % Colors.primaries.length;
+                                final manufacturerColor = Colors.primaries[colorIndex.abs()];
+                                
+                                return Card(
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(color: Colors.grey.shade200, width: 1),
+                                  ),
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    leading: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: manufacturerColor.withValues(alpha: 0.1),
+                                        border: Border.all(color: manufacturerColor, width: 1),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          firstLetter,
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: manufacturerColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    title: Text(
+                                      manufacturer,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                    subtitle: Text(
+                                      'View filaments from $manufacturer',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    trailing: Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 16,
+                                      color: Colors.grey.shade400,
+                                    ),
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedManufacturer = manufacturer;
+                                      });
+                                      _performSearch(reset: true);
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      )
+                    : _searchResults.isEmpty
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
