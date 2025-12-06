@@ -226,10 +226,10 @@ class _SearchPageState extends State<SearchPage> {
     if (filament.colorHexes != null && filament.colorHexes!.isNotEmpty) {
       // Multi-color filament
       return Container(
-        width: 40,
-        height: 40,
+        width: 80,
+        height: 80,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(8),
           gradient: LinearGradient(
             colors: filament.colorHexes!
                 .map((hex) => _getColorFromHex(hex))
@@ -240,10 +240,10 @@ class _SearchPageState extends State<SearchPage> {
     } else if (filament.colorHex != null) {
       // Single color filament
       return Container(
-        width: 40,
-        height: 40,
+        width: 80,
+        height: 80,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(8),
           color: _getColorFromHex(filament.colorHex),
           border: Border.all(color: Colors.grey.shade300),
         ),
@@ -251,10 +251,10 @@ class _SearchPageState extends State<SearchPage> {
     } else {
       // No color info
       return Container(
-        width: 40,
-        height: 40,
+        width: 80,
+        height: 80,
         decoration: BoxDecoration(
-          shape: BoxShape.circle,
+          borderRadius: BorderRadius.circular(8),
           color: Colors.grey.shade300,
           border: Border.all(color: Colors.grey.shade400),
         ),
@@ -426,62 +426,66 @@ class _SearchPageState extends State<SearchPage> {
                               ),
                             ),
                           ),
-                          // Manufacturer list
+                          // Manufacturer grid
                           Expanded(
-                            child: ListView.builder(
+                            child: GridView.builder(
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 1.5,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                              ),
                               itemCount: _manufacturers.length + 1, // +1 for "All" option
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.all(16),
                               itemBuilder: (context, index) {
                                 if (index == 0) {
                                   // "All" option
                                   return Card(
-                                    margin: const EdgeInsets.only(bottom: 12, top: 12),
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(color: Colors.grey.shade200, width: 1),
+                                      side: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
                                     ),
-                                    child: ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                      leading: Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
-                                          border: Border.all(color: Theme.of(context).colorScheme.secondary, width: 1),
-                                        ),
-                                        child: Icon(
-                                          Icons.apps,
-                                          color: Theme.of(context).colorScheme.secondary,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      title: const Text(
-                                        'All Manufacturers',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                      subtitle: Text(
-                                        'Browse all available filaments',
-                                        style: TextStyle(
-                                          color: Colors.grey.shade600,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      trailing: Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 16,
-                                        color: Colors.grey.shade400,
-                                      ),
+                                    child: InkWell(
                                       onTap: () {
                                         setState(() {
                                           _selectedManufacturer = null;
                                         });
                                         _performSearch(reset: true, showAll: true);
                                       },
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(12),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                              width: 50,
+                                              height: 50,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                                              ),
+                                              child: Icon(
+                                                Icons.apps,
+                                                color: Theme.of(context).colorScheme.secondary,
+                                                size: 28,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            const Text(
+                                              'All Manufacturers',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 13,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
                                   );
                                 }
@@ -492,52 +496,12 @@ class _SearchPageState extends State<SearchPage> {
                                 final manufacturerColor = Colors.primaries[colorIndex.abs()];
                                 
                                 return Card(
-                                  margin: const EdgeInsets.only(bottom: 12),
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     side: BorderSide(color: Colors.grey.shade200, width: 1),
                                   ),
-                                  child: ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    leading: Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color: manufacturerColor.withValues(alpha: 0.1),
-                                        border: Border.all(color: manufacturerColor, width: 1),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          firstLetter,
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: manufacturerColor,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    title: Text(
-                                      manufacturer,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    subtitle: Text(
-                                      'View filaments from $manufacturer',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    trailing: Icon(
-                                      Icons.arrow_forward_ios,
-                                      size: 16,
-                                      color: Colors.grey.shade400,
-                                    ),
+                                  child: InkWell(
                                     onTap: () {
                                       setState(() {
                                         _selectedManufacturer = manufacturer;
@@ -545,6 +509,45 @@ class _SearchPageState extends State<SearchPage> {
                                       });
                                       _performSearch(reset: true);
                                     },
+                                    borderRadius: BorderRadius.circular(12),
+                                    child: Container(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Container(
+                                            width: 50,
+                                            height: 50,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: manufacturerColor.withValues(alpha: 0.1),
+                                              border: Border.all(color: manufacturerColor, width: 2),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                firstLetter,
+                                                style: TextStyle(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: manufacturerColor,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            manufacturer,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 );
                               },
@@ -607,10 +610,16 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           // Results list
                           Expanded(
-                            child: ListView.builder(
+                            child: GridView.builder(
                               controller: _scrollController,
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 4,
+                                childAspectRatio: 1.0,
+                                crossAxisSpacing: 4,
+                                mainAxisSpacing: 4,
+                              ),
                               itemCount: _searchResults.length + (_hasMore ? 1 : 0),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: const EdgeInsets.all(8),
                               itemBuilder: (context, index) {
                                 if (index >= _searchResults.length) {
                                   // Loading indicator at the bottom
@@ -624,86 +633,27 @@ class _SearchPageState extends State<SearchPage> {
                                   );
                                 }
                           final filament = _searchResults[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(color: Colors.grey.shade200, width: 1),
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              leading: _buildColorIndicator(filament),
-                              title: Text(
-                                filament.displayName,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
+                          return InkWell(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => FilamentDetail(
+                                    filament: filament,
+                                  ),
                                 ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${filament.material} • ${filament.diameter}mm',
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.secondary,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  if (filament.extruderTemp != null || filament.bedTemp != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 2),
-                                      child: Text(
-                                        'Extruder: ${filament.extruderTemp ?? '?'}°C • Bed: ${filament.bedTemp ?? '?'}°C',
-                                        style: TextStyle(
-                                          color: Colors.grey.shade600,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              trailing: Column(
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(2),
+                              child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    '${filament.weight.toInt()}g',
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  if (filament.translucent || filament.glow) ...[
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        if (filament.translucent)
-                                          Icon(
-                                            Icons.visibility,
-                                            size: 16,
-                                            color: Colors.blue.shade400,
-                                          ),
-                                        if (filament.glow)
-                                          Icon(
-                                            Icons.flash_on,
-                                            size: 16,
-                                            color: Colors.green.shade400,
-                                          ),
-                                      ],
-                                    ),
-                                  ],
+                                  // Color indicator only
+                                  _buildColorIndicator(filament),
                                 ],
                               ),
-                              onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => FilamentDetail(
-                                      filament: filament,
-                                    ),
-                                  ),
-                                );
-                              },
                             ),
                           );
                         },
