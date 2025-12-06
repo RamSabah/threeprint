@@ -123,8 +123,8 @@ class _SearchPageState extends State<SearchPage> {
 
     try {
       final result = await _spoolmanService.searchFilaments(
-        query: _searchQuery.isNotEmpty ? _searchQuery : null,
-        manufacturer: _selectedManufacturer,
+        query: (_searchQuery.isNotEmpty && !showAll) ? _searchQuery : null,
+        manufacturer: showAll ? null : _selectedManufacturer,
         limit: _pageSize,
         offset: reset ? 0 : _searchResults.length,
       );
@@ -168,8 +168,8 @@ class _SearchPageState extends State<SearchPage> {
 
     try {
       final result = await _spoolmanService.searchFilaments(
-        query: _searchQuery.isNotEmpty ? _searchQuery : null,
-        manufacturer: _selectedManufacturer,
+        query: (_searchQuery.isNotEmpty && !_showingAllManufacturers) ? _searchQuery : null,
+        manufacturer: _showingAllManufacturers ? null : _selectedManufacturer,
         limit: _pageSize,
         offset: _searchResults.length,
       );
@@ -318,7 +318,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ),
                 // Show selected manufacturer or search status
-                if (_selectedManufacturer != null || _searchQuery.isNotEmpty) ...[
+                if (_selectedManufacturer != null || _searchQuery.isNotEmpty || _showingAllManufacturers) ...[
                   const SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -329,6 +329,26 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     child: Row(
                       children: [
+                        if (_showingAllManufacturers && _selectedManufacturer == null && _searchQuery.isEmpty) ...[
+                          Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
+                            ),
+                            child: Icon(
+                              Icons.apps,
+                              size: 14,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Showing: All Manufacturers',
+                            style: TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
                         if (_selectedManufacturer != null) ...[
                           Container(
                             width: 24,
@@ -383,7 +403,7 @@ class _SearchPageState extends State<SearchPage> {
                 ? const Center(
                     child: CircularProgressIndicator(),
                   )
-                : _selectedManufacturer == null && _searchQuery.isEmpty
+                : _selectedManufacturer == null && _searchQuery.isEmpty && !_showingAllManufacturers
                     ? // Show manufacturer list when no search or manufacturer selected
                       Column(
                         children: [
