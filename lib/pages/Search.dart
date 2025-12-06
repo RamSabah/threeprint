@@ -1165,6 +1165,50 @@ class _SearchPageState extends State<SearchPage> {
                                             ],
                                           ),
                                         ),
+                                      // Reset filter button (only show when a filter or sort is active)
+                                      if (_showingAllManufacturers && (_selectedColorFilter != null || _sortByBrightness))
+                                        Padding(
+                                          padding: const EdgeInsets.only(left: 8),
+                                          child: Material(
+                                            color: Colors.red.shade50,
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  _selectedColorFilter = null;
+                                                  _sortByBrightness = false;
+                                                  _viewMode = 'manufacturers';
+                                                  _selectedManufacturer = null;
+                                                  _searchResults = [];
+                                                  _showingAllManufacturers = false;
+                                                });
+                                              },
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.clear,
+                                                      size: 16,
+                                                      color: Colors.red.shade700,
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      'Reset',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.red.shade700,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                     ],
                                   ),
                                   const SizedBox(height: 8),
