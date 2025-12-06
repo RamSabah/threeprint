@@ -1,14 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/spoolman_service.dart';
+import '../services/filament_service.dart';
 
-class FilamentDetail extends StatelessWidget {
+class FilamentDetail extends StatefulWidget {
   final SpoolmanFilament filament;
 
   const FilamentDetail({
     super.key,
     required this.filament,
   });
+
+  @override
+  State<FilamentDetail> createState() => _FilamentDetailState();
+}
+
+class _FilamentDetailState extends State<FilamentDetail> {
+  final FilamentService _filamentService = FilamentService();
+  bool _isSaved = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfSaved();
+  }
+
+  Future<void> _checkIfSaved() async {
+    final saved = await _filamentService.isSpoolmanFilamentSaved(widget.filament.id.toString());
+    if (mounted) {
+      setState(() {
+        _isSaved = saved;
+      });
+    }
+  }
+
+  Future<void> _saveToLibrary() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _filamentService.saveSpoolmanFilament(
+        spoolmanId: widget.filament.id.toString(),
+        displayName: widget.filament.displayName,
+        manufacturer: widget.filament.manufacturer,
+        material: widget.filament.material,
+        diameter: widget.filament.diameter,
+        weight: widget.filament.weight,
+        colorHex: widget.filament.colorHex,
+        colorHexes: widget.filament.colorHexes,
+        extruderTemp: widget.filament.extruderTemp,
+        bedTemp: widget.filament.bedTemp,
+        quantity: 1,
+        notes: 'Saved from Spoolman search',
+      );
+
+      if (mounted) {
+        setState(() {
+          _isSaved = true;
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Filament saved to your library!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save filament: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
 
   Color _getColorFromHex(String? hexColor) {
     if (hexColor == null || hexColor.isEmpty) {
@@ -26,7 +101,7 @@ class FilamentDetail extends StatelessWidget {
   }
 
   Widget _buildColorDisplay() {
-    if (filament.colorHexes != null && filament.colorHexes!.isNotEmpty) {
+    if (widget.filament.colorHexes != null && widget.filament.colorHexes!.isNotEmpty) {
       // Multi-color filament
       return Column(
         children: [
@@ -36,7 +111,7 @@ class FilamentDetail extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
-                colors: filament.colorHexes!
+                colors: widget.filament.colorHexes!
                     .map((hex) => _getColorFromHex(hex))
                     .toList(),
               ),
@@ -52,9 +127,9 @@ class FilamentDetail extends StatelessWidget {
               fontWeight: FontWeight.w500,
             ),
           ),
-          if (filament.multiColorDirection != null)
+          if (widget.filament.multiColorDirection != null)
             Text(
-              filament.multiColorDirection!.toUpperCase(),
+              widget.filament.multiColorDirection!.toUpperCase(),
               style: TextStyle(
                 color: Colors.grey.shade500,
                 fontSize: 10,
@@ -62,7 +137,7 @@ class FilamentDetail extends StatelessWidget {
             ),
         ],
       );
-    } else if (filament.colorHex != null) {
+    } else if (widget.filament.colorHex != null) {
       // Single color filament
       return Column(
         children: [
@@ -71,13 +146,13 @@ class FilamentDetail extends StatelessWidget {
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _getColorFromHex(filament.colorHex),
+              color: _getColorFromHex(widget.filament.colorHex),
               border: Border.all(color: Colors.grey.shade300, width: 2),
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            filament.colorHex!.toUpperCase(),
+            widget.filament.colorHex!.toUpperCase(),
             style: TextStyle(
               color: Colors.grey.shade600,
               fontSize: 12,
@@ -203,31 +278,29 @@ class FilamentDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(filament.displayName),
+        title: Text(widget.filament.displayName),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              // Share filament details
-              final details = '''
-${filament.displayName}
-Material: ${filament.material}
-Diameter: ${filament.diameter}mm
-Weight: ${filament.weight}g
-Extruder: ${_formatTemperature(filament.extruderTemp, filament.extruderTempRange)}
-Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
-              '''.trim();
-              
-              Clipboard.setData(ClipboardData(text: details));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Filament details copied to clipboard'),
-                  duration: Duration(seconds: 2),
+          _isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                )
+              : IconButton(
+                  icon: Icon(
+                    _isSaved ? Icons.bookmark : Icons.bookmark_border,
+                    color: _isSaved ? Colors.amber : null,
+                  ),
+                  onPressed: _isSaved ? null : _saveToLibrary,
+                  tooltip: _isSaved ? 'Already in library' : 'Save to library',
                 ),
-              );
-            },
-          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -242,7 +315,7 @@ Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
                   _buildColorDisplay(),
                   const SizedBox(height: 16),
                   Text(
-                    filament.displayName,
+                    widget.filament.displayName,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -256,7 +329,7 @@ Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
-                      '${filament.material} • ${filament.diameter}mm',
+                      '${widget.filament.material} • ${widget.filament.diameter}mm',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                         fontWeight: FontWeight.w600,
@@ -272,11 +345,11 @@ Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
             _buildInfoCard(
               'Basic Information',
               [
-                _buildInfoRow('ID', filament.id, onTap: () => _copyToClipboard(context, filament.id)),
-                _buildInfoRow('Manufacturer', filament.manufacturer),
-                _buildInfoRow('Product Name', filament.name),
-                _buildInfoRow('Material', filament.material),
-                _buildInfoRow('Diameter', '${filament.diameter}mm'),
+                _buildInfoRow('ID', widget.filament.id, onTap: () => _copyToClipboard(context, widget.filament.id)),
+                _buildInfoRow('Manufacturer', widget.filament.manufacturer),
+                _buildInfoRow('Product Name', widget.filament.name),
+                _buildInfoRow('Material', widget.filament.material),
+                _buildInfoRow('Diameter', '${widget.filament.diameter}mm'),
               ],
             ),
 
@@ -284,12 +357,12 @@ Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
             _buildInfoCard(
               'Physical Properties',
               [
-                _buildInfoRow('Weight', '${filament.weight.toInt()}g', icon: Icons.scale),
-                _buildInfoRow('Density', '${filament.density} g/cm³', icon: Icons.science),
+                _buildInfoRow('Weight', '${widget.filament.weight.toInt()}g', icon: Icons.scale),
+                _buildInfoRow('Density', '${widget.filament.density} g/cm³', icon: Icons.science),
                 _buildInfoRow('Spool Weight', 
-                  filament.spoolWeight != null ? '${filament.spoolWeight!.toInt()}g' : null, 
+                  widget.filament.spoolWeight != null ? '${widget.filament.spoolWeight!.toInt()}g' : null, 
                   icon: Icons.data_usage),
-                _buildInfoRow('Spool Type', filament.spoolType?.toUpperCase(), icon: Icons.album),
+                _buildInfoRow('Spool Type', widget.filament.spoolType?.toUpperCase(), icon: Icons.album),
               ],
             ),
 
@@ -298,10 +371,10 @@ Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
               'Temperature Settings',
               [
                 _buildInfoRow('Extruder Temperature', 
-                  _formatTemperature(filament.extruderTemp, filament.extruderTempRange),
+                  _formatTemperature(widget.filament.extruderTemp, widget.filament.extruderTempRange),
                   icon: Icons.thermostat),
                 _buildInfoRow('Bed Temperature', 
-                  _formatTemperature(filament.bedTemp, filament.bedTempRange),
+                  _formatTemperature(widget.filament.bedTemp, widget.filament.bedTempRange),
                   icon: Icons.thermostat),
               ],
             ),
@@ -310,18 +383,18 @@ Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
             _buildInfoCard(
               'Color Information',
               [
-                if (filament.colorHex != null)
-                  _buildInfoRow('Color Code', filament.colorHex, 
+                if (widget.filament.colorHex != null)
+                  _buildInfoRow('Color Code', widget.filament.colorHex, 
                     icon: Icons.palette,
-                    onTap: () => _copyToClipboard(context, filament.colorHex!)),
-                if (filament.colorHexes != null && filament.colorHexes!.isNotEmpty) ...[
-                  _buildInfoRow('Color Count', '${filament.colorHexes!.length} colors'),
-                  ...filament.colorHexes!.asMap().entries.map((entry) =>
+                    onTap: () => _copyToClipboard(context, widget.filament.colorHex!)),
+                if (widget.filament.colorHexes != null && widget.filament.colorHexes!.isNotEmpty) ...[
+                  _buildInfoRow('Color Count', '${widget.filament.colorHexes!.length} colors'),
+                  ...widget.filament.colorHexes!.asMap().entries.map((entry) =>
                     _buildInfoRow('Color ${entry.key + 1}', entry.value,
                       onTap: () => _copyToClipboard(context, entry.value))),
                 ],
-                if (filament.multiColorDirection != null)
-                  _buildInfoRow('Color Direction', filament.multiColorDirection!.toUpperCase()),
+                if (widget.filament.multiColorDirection != null)
+                  _buildInfoRow('Color Direction', widget.filament.multiColorDirection!.toUpperCase()),
               ],
             ),
 
@@ -329,17 +402,17 @@ Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
             _buildInfoCard(
               'Special Properties',
               [
-                _buildInfoRow('Finish', filament.finish?.toUpperCase(), icon: Icons.brush),
-                _buildInfoRow('Pattern', filament.pattern?.toUpperCase(), icon: Icons.texture),
-                _buildInfoRow('Translucent', filament.translucent ? 'Yes' : 'No', 
-                  icon: filament.translucent ? Icons.visibility : Icons.visibility_off),
-                _buildInfoRow('Glow in Dark', filament.glow ? 'Yes' : 'No', 
-                  icon: filament.glow ? Icons.flash_on : Icons.flash_off),
+                _buildInfoRow('Finish', widget.filament.finish?.toUpperCase(), icon: Icons.brush),
+                _buildInfoRow('Pattern', widget.filament.pattern?.toUpperCase(), icon: Icons.texture),
+                _buildInfoRow('Translucent', widget.filament.translucent ? 'Yes' : 'No', 
+                  icon: widget.filament.translucent ? Icons.visibility : Icons.visibility_off),
+                _buildInfoRow('Glow in Dark', widget.filament.glow ? 'Yes' : 'No', 
+                  icon: widget.filament.glow ? Icons.flash_on : Icons.flash_off),
               ],
             ),
 
             // Special Features Badge Row
-            if (filament.translucent || filament.glow || filament.pattern != null || filament.finish != null)
+            if (widget.filament.translucent || widget.filament.glow || widget.filament.pattern != null || widget.filament.finish != null)
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -358,28 +431,28 @@ Bed: ${_formatTemperature(filament.bedTemp, filament.bedTempRange)}
                         spacing: 8,
                         runSpacing: 8,
                         children: [
-                          if (filament.translucent)
+                          if (widget.filament.translucent)
                             Chip(
                               avatar: const Icon(Icons.visibility, size: 18),
                               label: const Text('Translucent'),
                               backgroundColor: Colors.blue.shade100,
                             ),
-                          if (filament.glow)
+                          if (widget.filament.glow)
                             Chip(
                               avatar: const Icon(Icons.flash_on, size: 18),
                               label: const Text('Glow in Dark'),
                               backgroundColor: Colors.green.shade100,
                             ),
-                          if (filament.pattern != null)
+                          if (widget.filament.pattern != null)
                             Chip(
                               avatar: const Icon(Icons.texture, size: 18),
-                              label: Text(filament.pattern!.toUpperCase()),
+                              label: Text(widget.filament.pattern!.toUpperCase()),
                               backgroundColor: Colors.purple.shade100,
                             ),
-                          if (filament.finish != null)
+                          if (widget.filament.finish != null)
                             Chip(
-                              avatar: const Icon(Icons.brush, size: 18),
-                              label: Text(filament.finish!.toUpperCase()),
+                              avatar: const Icon(Icons.texture, size: 18),
+                              label: Text(widget.filament.finish!.toUpperCase()),
                               backgroundColor: Colors.orange.shade100,
                             ),
                         ],

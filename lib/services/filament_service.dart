@@ -311,4 +311,94 @@ class FilamentService {
       throw Exception('Failed to search filaments: $e');
     }
   }
+
+  /// Save a SpoolmanFilament from search results to user's library
+  Future<String> saveSpoolmanFilament({
+    required String spoolmanId,
+    required String displayName,
+    required String manufacturer,
+    required String material,
+    required double diameter,
+    required double weight,
+    String? colorHex,
+    List<String>? colorHexes,
+    int? extruderTemp,
+    int? bedTemp,
+    required int quantity,
+    double? cost,
+    String? notes,
+  }) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        throw Exception('User must be authenticated to save filament');
+      }
+
+      final filamentId = _uuid.v4();
+      final now = DateTime.now();
+      
+      // Determine color string - use first color from multi-color or single color
+      String colorString;
+      if (colorHexes != null && colorHexes.isNotEmpty) {
+        colorString = 'Multi-Color (${colorHexes.join(', ')})';
+      } else if (colorHex != null) {
+        colorString = colorHex;
+      } else {
+        colorString = 'Unknown';
+      }
+      
+      final filament = Filament(
+        id: filamentId,
+        userId: userId,
+        type: material,
+        color: colorString,
+        count: 1, // Default count
+        brand: manufacturer,
+        weight: weight,
+        diameter: diameter,
+        quantity: quantity,
+        cost: cost,
+        notes: notes != null ? '$notes\n\nSpoolman ID: $spoolmanId' : 'Spoolman ID: $spoolmanId',
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      await _firestore
+          .collection(_collection)
+          .doc(filamentId)
+          .set(filament.toFirestore());
+
+      return filamentId;
+    } catch (e) {
+      throw Exception('Failed to save filament to library: $e');
+    }
+  }
+
+  /// Check if a SpoolmanFilament is already saved in user's library
+  Future<bool> isSpoolmanFilamentSaved(String spoolmanId) async {
+    try {
+      final userId = _currentUserId;
+      if (userId == null) {
+        return false;
+      }
+
+      final querySnapshot = await _firestore
+          .collection(_collection)
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      // Check if any filament has the spoolmanId in notes
+      for (final doc in querySnapshot.docs) {
+        final data = doc.data();
+        final notes = data['notes'] as String?;
+        if (notes != null && notes.contains('Spoolman ID: $spoolmanId')) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
 }
