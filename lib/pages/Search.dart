@@ -397,6 +397,128 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
+  void _showColorFilterDialog() {
+    final colors = [
+      {'name': 'All'},
+      {'name': 'Red', 'color': 0xFFE53935},
+      {'name': 'Orange', 'color': 0xFFFF9800},
+      {'name': 'Yellow', 'color': 0xFFFFEB3B},
+      {'name': 'Green', 'color': 0xFF4CAF50},
+      {'name': 'Cyan', 'color': 0xFF00BCD4},
+      {'name': 'Blue', 'color': 0xFF2196F3},
+      {'name': 'Purple', 'color': 0xFF9C27B0},
+      {'name': 'Pink', 'color': 0xFFE91E63},
+      {'name': 'Brown', 'color': 0xFF795548},
+      {'name': 'White', 'color': 0xFFFFFFFF},
+      {'name': 'Gray', 'color': 0xFF9E9E9E},
+      {'name': 'Black', 'color': 0xFF212121},
+      {'name': 'Silver', 'color': 0xFFC0C0C0},
+      {'name': 'Gold', 'color': 0xFFFFD700},
+      {'name': 'Skin', 'color': 0xFFFFDBAC},
+      {'name': 'Gradient', 'isGradient': true},
+    ];
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Select Color Filter',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 2.5,
+                  ),
+                  itemCount: colors.length,
+                  itemBuilder: (context, index) {
+                    final colorItem = colors[index];
+                    final name = colorItem['name'] as String;
+                    final isSelected = (_selectedColorFilter ?? 'All') == name;
+                    
+                    return InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                        _applyColorFilter(name == 'All' ? null : name);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.blue.shade50 : Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected ? Colors.blue : Colors.grey.shade300,
+                            width: isSelected ? 2 : 1,
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (name != 'All')
+                              Container(
+                                width: 20,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: colorItem['isGradient'] == true
+                                      ? null
+                                      : Color(colorItem['color'] as int),
+                                  gradient: colorItem['isGradient'] == true
+                                      ? const LinearGradient(
+                                          colors: [Color(0xFFE53935), Color(0xFFFFEB3B), Color(0xFF2196F3)],
+                                        )
+                                      : null,
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: name == 'White'
+                                      ? Border.all(color: Colors.grey.shade400)
+                                      : null,
+                                ),
+                              ),
+                            if (name != 'All') const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   double _getColorBrightness(String? hexColor) {
     if (hexColor == null || hexColor.isEmpty) {
       return 128; // Default mid-brightness for grey
@@ -573,63 +695,6 @@ class _SearchPageState extends State<SearchPage> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                 ),
-                // Show selected manufacturer or search status
-                if (_selectedManufacturer != null || _searchQuery.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        if (_selectedManufacturer != null) ...[
-                          Container(
-                            width: 24,
-                            height: 24,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.primaries[(_selectedManufacturer?.hashCode ?? 0) % Colors.primaries.length].withValues(alpha: 0.2),
-                            ),
-                            child: Center(
-                              child: Text(
-                                _selectedManufacturer![0].toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.primaries[(_selectedManufacturer?.hashCode ?? 0) % Colors.primaries.length],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Showing: $_selectedManufacturer',
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                        if (_searchQuery.isNotEmpty && _selectedManufacturer != null)
-                          const Text(' • '),
-                        if (_searchQuery.isNotEmpty)
-                          Expanded(
-                            child: Text(
-                              'Search: "$_searchQuery"',
-                              style: const TextStyle(fontStyle: FontStyle.italic),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
-                          onPressed: _clearSearch,
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ],
             ),
           ),
@@ -860,309 +925,32 @@ class _SearchPageState extends State<SearchPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 12),
-                                      // Color filter dropdown (only show when viewing all colors)
+                                      // Color filter button (only show when viewing all colors)
                                       if (_showingAllManufacturers)
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.circular(8),
-                                            border: Border.all(color: Colors.grey.shade300),
-                                          ),
-                                          child: DropdownButton<String>(
-                                            value: _selectedColorFilter ?? 'All',
-                                            underline: const SizedBox(),
-                                            icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
-                                            style: TextStyle(
-                                              color: Colors.grey.shade700,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
+                                        InkWell(
+                                          onTap: _showColorFilterDialog,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(color: Colors.grey.shade300),
                                             ),
-                                            onChanged: (String? newValue) {
-                                              _applyColorFilter(newValue == 'All' ? null : newValue);
-                                            },
-                                            items: [
-                                              const DropdownMenuItem(value: 'All', child: Text('All Colors')),
-                                              DropdownMenuItem(
-                                                value: 'Red',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFE53935),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Red'),
-                                                  ],
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  _selectedColorFilter ?? 'All Colors',
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade700,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Orange',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFFF9800),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Orange'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Yellow',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFFFEB3B),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Yellow'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Green',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF4CAF50),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Green'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Cyan',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF00BCD4),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Cyan'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Blue',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF2196F3),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Blue'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Purple',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF9C27B0),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Purple'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Pink',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFE91E63),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Pink'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Brown',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF795548),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Brown'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'White',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFFFFFFF),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                        border: Border.all(color: Colors.grey.shade400),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('White'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Gray',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF9E9E9E),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Gray'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Black',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFF212121),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Black'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Silver',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFC0C0C0),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Silver'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Gold',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFFFD700),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Gold'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Skin',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        color: const Color(0xFFFFDBAC),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Skin'),
-                                                  ],
-                                                ),
-                                              ),
-                                              DropdownMenuItem(
-                                                value: 'Gradient',
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      width: 20,
-                                                      height: 20,
-                                                      decoration: BoxDecoration(
-                                                        gradient: const LinearGradient(
-                                                          colors: [
-                                                            Color(0xFFE53935),
-                                                            Color(0xFFFFEB3B),
-                                                            Color(0xFF2196F3),
-                                                          ],
-                                                        ),
-                                                        borderRadius: BorderRadius.circular(4),
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    const Text('Gradient'),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
+                                                const SizedBox(width: 4),
+                                                Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       // Reset filter button (only show when a filter or sort is active)
@@ -1209,14 +997,8 @@ class _SearchPageState extends State<SearchPage> {
                                             ),
                                           ),
                                         ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  // Sort button row
-                                  Row(
-                                    children: [
-                                      const Spacer(),
                                       // Sort button
+                                      const Spacer(),
                                       Material(
                                         color: _sortByBrightness 
                                             ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
@@ -1225,8 +1007,8 @@ class _SearchPageState extends State<SearchPage> {
                                         child: InkWell(
                                           onTap: _toggleSortByBrightness,
                                           borderRadius: BorderRadius.circular(8),
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
