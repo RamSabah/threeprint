@@ -21,14 +21,26 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   final _costController = TextEditingController();
   final _storageLocationController = TextEditingController();
   final _notesController = TextEditingController();
+  final _notesFocusNode = FocusNode();
   
   String? _selectedFilamentType;
   Color _selectedColor = Colors.red;
   String _selectedColorName = 'Red';
   bool _isSaving = false;
+  bool _isNotesFocused = false;
   final FilamentService _filamentService = FilamentService();
   
   final List<String> _filamentTypes = ['PLA', 'ABS', 'PETG', 'TPU', 'WOOD', 'ASA', 'PC', 'Other'];
+
+  @override
+  void initState() {
+    super.initState();
+    _notesFocusNode.addListener(() {
+      setState(() {
+        _isNotesFocused = _notesFocusNode.hasFocus;
+      });
+    });
+  }
 
   @override
   void dispose() {
@@ -41,6 +53,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _costController.dispose();
     _storageLocationController.dispose();
     _notesController.dispose();
+    _notesFocusNode.dispose();
     super.dispose();
   }
 
@@ -152,9 +165,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
+      body: GestureDetector(
+        onTap: () {
+          // Hide keyboard when tapping outside input fields
+          FocusScope.of(context).unfocus();
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -627,6 +645,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               const SizedBox(height: 8),
               TextFormField(
                 controller: _notesController,
+                focusNode: _notesFocusNode,
                 maxLines: 3,
                 decoration: InputDecoration(
                   filled: true,
@@ -645,6 +664,15 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                   ),
                   hintText: 'Any additional notes about this filament...',
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  suffixIcon: _isNotesFocused 
+                    ? IconButton(
+                        icon: const Icon(Icons.close, color: Colors.black54, size: 20),
+                        onPressed: () {
+                          // Dismiss keyboard by removing focus
+                          _notesFocusNode.unfocus();
+                        },
+                      )
+                    : null,
                 ),
                 validator: FilamentValidation.validateNotes,
                 textCapitalization: TextCapitalization.sentences,
@@ -764,6 +792,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
