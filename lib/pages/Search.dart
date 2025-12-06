@@ -26,6 +26,7 @@ class _SearchPageState extends State<SearchPage> {
   String _searchQuery = '';
   bool _showingAllManufacturers = false;
   bool _sortByBrightness = false;
+  String _viewMode = 'manufacturers'; // 'manufacturers' or 'colors'
   static const int _pageSize = 20;
   
   @override
@@ -204,6 +205,8 @@ class _SearchPageState extends State<SearchPage> {
       _hasMore = false;
       _totalCount = 0;
       _showingAllManufacturers = false;
+      _viewMode = 'manufacturers';
+      _sortByBrightness = false;
     });
   }
 
@@ -485,7 +488,7 @@ class _SearchPageState extends State<SearchPage> {
                 ? const Center(
                     child: CircularProgressIndicator(),
                   )
-                : _selectedManufacturer == null && _searchQuery.isEmpty && !_showingAllManufacturers
+                : (_selectedManufacturer == null && _searchQuery.isEmpty && !_showingAllManufacturers && _viewMode == 'manufacturers')
                     ? // Show manufacturer list when no search or manufacturer selected
                       Column(
                         children: [
@@ -499,13 +502,58 @@ class _SearchPageState extends State<SearchPage> {
                                 bottom: BorderSide(color: Colors.grey.shade200, width: 1),
                               ),
                             ),
-                            child: Text(
-                              'Select a Manufacturer (${_manufacturers.length} available)',
-                              style: TextStyle(
-                                color: Colors.grey.shade700,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  'Select a Manufacturer (${_manufacturers.length} available)',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const Spacer(),
+                                // Dropdown button
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: _viewMode,
+                                    underline: const SizedBox(),
+                                    icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
+                                    style: TextStyle(
+                                      color: Colors.grey.shade700,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        setState(() {
+                                          _viewMode = newValue;
+                                          if (newValue == 'colors') {
+                                            _selectedManufacturer = null;
+                                            _performSearch(reset: true, showAll: true);
+                                          }
+                                        });
+                                      }
+                                    },
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: 'manufacturers',
+                                        child: Text('Manufacturers'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'colors',
+                                        child: Text('All Colors'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           // Manufacturer grid
@@ -517,62 +565,10 @@ class _SearchPageState extends State<SearchPage> {
                                 crossAxisSpacing: 12,
                                 mainAxisSpacing: 12,
                               ),
-                              itemCount: _manufacturers.length + 1, // +1 for "All" option
+                              itemCount: _manufacturers.length,
                               padding: const EdgeInsets.all(16),
                               itemBuilder: (context, index) {
-                                if (index == 0) {
-                                  // "All" option
-                                  return Card(
-                                    elevation: 0,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      side: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          _selectedManufacturer = null;
-                                        });
-                                        _performSearch(reset: true, showAll: true);
-                                      },
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              width: 50,
-                                              height: 50,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
-                                              ),
-                                              child: Icon(
-                                                Icons.apps,
-                                                color: Theme.of(context).colorScheme.secondary,
-                                                size: 28,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            const Text(
-                                              'All Manufacturers',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 13,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                                
-                                final manufacturer = _manufacturers[index - 1];
+                                final manufacturer = _manufacturers[index];
                                 final firstLetter = manufacturer.isNotEmpty ? manufacturer[0].toUpperCase() : '?';
                                 final colorIndex = manufacturer.hashCode % Colors.primaries.length;
                                 final manufacturerColor = Colors.primaries[colorIndex.abs()];
