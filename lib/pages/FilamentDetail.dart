@@ -322,18 +322,12 @@ class _FilamentDetailState extends State<FilamentDetail> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      '${widget.filament.material} • ${widget.filament.diameter}mm',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.w600,
-                      ),
+                  Text(
+                    '${widget.filament.material} • ${widget.filament.diameter}mm',
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
                     ),
                   ),
                 ],

@@ -26,14 +26,26 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   final _notesController = TextEditingController();
   final _notesFocusNode = FocusNode();
   
+  // New fields
+  final _densityController = TextEditingController(text: '1.24');
+  final _spoolWeightController = TextEditingController();
+  final _extruderTempController = TextEditingController();
+  final _bedTempController = TextEditingController();
+  final _finishController = TextEditingController();
+  final _patternController = TextEditingController();
+  
   String? _selectedFilamentType;
+  String? _selectedSpoolType;
   Color _selectedColor = Colors.red;
   String _selectedColorName = 'Red';
   bool _isSaving = false;
   bool _isNotesFocused = false;
+  bool _isTranslucent = false;
+  bool _isGlowInDark = false;
   final FilamentService _filamentService = FilamentService();
   
   final List<String> _filamentTypes = ['PLA', 'PLA+', 'ABS', 'PETG', 'TPU', 'WOOD', 'ASA', 'PC', 'Other'];
+  final List<String> _spoolTypes = ['PLASTIC', 'CARDBOARD', 'METAL', 'OTHER'];
 
   @override
   void initState() {
@@ -94,6 +106,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _storageLocationController.dispose();
     _notesController.dispose();
     _notesFocusNode.dispose();
+    _densityController.dispose();
+    _spoolWeightController.dispose();
+    _extruderTempController.dispose();
+    _bedTempController.dispose();
+    _finishController.dispose();
+    _patternController.dispose();
     super.dispose();
   }
 
@@ -269,6 +287,21 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               // Header
               Stack(
                 children: [
+                  // Cancel button (top-right)
+                  if (widget.filamentToEdit != null)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.close),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.grey.shade100,
+                          padding: const EdgeInsets.all(8),
+                        ),
+                        tooltip: 'Cancel',
+                      ),
+                    ),
                   Center(
                     child: Column(
                       children: [
@@ -300,206 +333,360 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               
-              // Filament Type Dropdown
-              const Text(
-                'Filament Type',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                value: _selectedFilamentType,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
-                  ),
-                  prefixIcon: Icon(Icons.category, color: Theme.of(context).colorScheme.secondary),
-                  hintText: 'Select filament type',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              // BASIC INFORMATION CARD
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
                 ),
-                items: _filamentTypes.map((String type) {
-                  return DropdownMenuItem<String>(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    _selectedFilamentType = newValue;
-                  });
-                },
-                validator: FilamentValidation.validateFilamentType,
-              ),
-              const SizedBox(height: 20),
-              
-              // Brand Input Field
-              const Text(
-                'Brand',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _brandController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
-                  ),
-                  prefixIcon: Icon(Icons.business, color: Theme.of(context).colorScheme.secondary),
-                  hintText: 'Enter brand name (e.g., Hatchbox, eSUN)',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
-                validator: FilamentValidation.validateFilamentBrand,
-                textCapitalization: TextCapitalization.words,
-              ),
-              const SizedBox(height: 20),
-              
-              // Color Section with Color Picker
-              const Text(
-                'Color',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
-              ),
-              const SizedBox(height: 8),
-              
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  border: Border.all(color: Colors.grey.shade200),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Selected Color',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _selectedColorName,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                ColorPickerUtils.colorToHex(_selectedColor),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                  fontFamily: 'monospace',
-                                ),
-                              ),
-                            ],
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.info_outline,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20,
+                            ),
                           ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Basic Information',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      // Filament Type Dropdown
+                      const Text(
+                        'Filament Type',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _selectedFilamentType,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                          ),
+                          prefixIcon: Icon(Icons.category, color: Theme.of(context).colorScheme.secondary),
+                          hintText: 'Select filament type',
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         ),
-                        Row(
+                        items: _filamentTypes.map((String type) {
+                          return DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(type),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedFilamentType = newValue;
+                          });
+                        },
+                        validator: FilamentValidation.validateFilamentType,
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Brand Input Field
+                      const Text(
+                        'Brand',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _brandController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                          ),
+                          prefixIcon: Icon(Icons.business, color: Theme.of(context).colorScheme.secondary),
+                          hintText: 'Enter brand name (e.g., Hatchbox, eSUN)',
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                        validator: FilamentValidation.validateFilamentBrand,
+                        textCapitalization: TextCapitalization.words,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // COLOR CARD
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.palette,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Color',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      // Color Picker
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Selected Color',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _selectedColorName,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    ColorPickerUtils.colorToHex(_selectedColor),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                      fontFamily: 'monospace',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             GestureDetector(
                               onTap: _openColorPicker,
                               child: Container(
-                                width: 50,
-                                height: 50,
+                                width: 60,
+                                height: 60,
                                 decoration: BoxDecoration(
                                   color: _selectedColor,
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: Colors.grey.shade400,
+                                    color: Colors.grey.shade300,
                                     width: 2,
                                   ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
                                 child: const Icon(
                                   Icons.palette,
                                   color: Colors.white,
-                                  size: 24,
+                                  size: 28,
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               
-              const SizedBox(height: 20),
-              
-              // Count Input
-              const Text(
-                'Count',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _countController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.grey.shade50,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
-                  ),
-                  prefixIcon: Icon(Icons.numbers, color: Theme.of(context).colorScheme.secondary),
-                  hintText: 'Enter number of filament units',
-                  suffixText: 'units',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                ),
-                validator: FilamentValidation.validateFilamentCount,
-              ),
-              
-              const SizedBox(height: 20),
-              
-              // Specifications Section
-              const Divider(height: 40),
-              const Text(
-                'Specifications',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
-              ),
               const SizedBox(height: 16),
+              
+              // INVENTORY CARD
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.inventory_2,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Inventory',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      // Count Input
+                      const Text(
+                        'Count',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _countController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                          ),
+                          prefixIcon: Icon(Icons.numbers, color: Theme.of(context).colorScheme.secondary),
+                          hintText: 'Enter number of filament units',
+                          suffixText: 'units',
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
+                        validator: FilamentValidation.validateFilamentCount,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // SPECIFICATIONS CARD
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.settings,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Specifications',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      const SizedBox(height: 20),
               
               // Weight, Diameter, Quantity Row
               Row(
@@ -510,7 +697,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Weight (g) *',
+                          'Weight (g)',
                           style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
                         ),
                         const SizedBox(height: 8),
@@ -621,19 +808,490 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 ],
               ),
               
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               
-              // Optional Fields Section
-              const Divider(height: 40),
+              // Additional Specifications Row (Density, Spool Weight, Spool Type)
+              Row(
+                children: [
+                  // Density Field
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Density (g/cm³)',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _densityController,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                            ),
+                            hintText: '1.24',
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  const SizedBox(width: 12),
+                  
+                  // Spool Weight Field
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Spool Weight (g)',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        TextFormField(
+                          controller: _spoolWeightController,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                            ),
+                            hintText: '340',
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Spool Type
+              const Text(
+                'Spool Type',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _selectedSpoolType,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                  ),
+                  prefixIcon: Icon(Icons.album, color: Theme.of(context).colorScheme.secondary),
+                  hintText: 'Select spool type',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                ),
+                items: _spoolTypes.map((String type) {
+                  return DropdownMenuItem<String>(
+                    value: type,
+                    child: Text(type),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedSpoolType = newValue;
+                  });
+                },
+              ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // TEMPERATURE SETTINGS CARD
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.thermostat,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Temperature Settings',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      Row(
+                        children: [
+                          // Extruder Temperature
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Extruder Temp (°C)',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _extruderTempController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey.shade50,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                                    ),
+                                    hintText: '200',
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(width: 12),
+                          
+                          // Bed Temperature
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Bed Temp (°C)',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _bedTempController,
+                                  keyboardType: TextInputType.number,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey.shade50,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                                    ),
+                                    hintText: '60',
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // SPECIAL PROPERTIES CARD
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.star_outline,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Special Properties',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      
+                      Row(
+                        children: [
+                          // Finish
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Finish',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _finishController,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey.shade50,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                                    ),
+                                    hintText: 'Matte, Glossy, etc.',
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(width: 12),
+                          
+                          // Pattern
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Pattern',
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                ),
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _patternController,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.grey.shade50,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                                    ),
+                                    hintText: 'Solid, Marble, etc.',
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Translucent Toggle
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200, width: 1),
+                        ),
+                        child: SwitchListTile(
+                          title: Row(
+                            children: [
+                              Icon(Icons.visibility, size: 20, color: Colors.grey.shade600),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Translucent',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                          value: _isTranslucent,
+                          activeColor: Theme.of(context).colorScheme.secondary,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _isTranslucent = value;
+                            });
+                          },
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Glow in Dark Toggle
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade200, width: 1),
+                        ),
+                        child: SwitchListTile(
+                          title: Row(
+                            children: [
+                              Icon(Icons.light_mode, size: 20, color: Colors.grey.shade600),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'Glow in Dark',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                          value: _isGlowInDark,
+                          activeColor: Theme.of(context).colorScheme.secondary,
+                          onChanged: (bool value) {
+                            setState(() {
+                              _isGlowInDark = value;
+                            });
+                          },
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // OPTIONAL DETAILS CARD
+              Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(color: Colors.grey.shade200, width: 1),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.more_horiz,
+                              color: Theme.of(context).colorScheme.secondary,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Optional Details',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      const SizedBox(height: 20),
+              
               // Empty Spool Weight
               const Text(
                 'Empty Spool Weight (g)',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Optional: Weight the spool with filament minus this = remaining filament',
-                style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+              Text(
+                'Optional: Weight of empty spool',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -660,7 +1318,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 validator: FilamentValidation.validateEmptySpoolWeight,
               ),
               
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               
               // Cost
               const Text(
@@ -693,7 +1351,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 validator: FilamentValidation.validateCost,
               ),
               
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               
               // Storage Location
               const Text(
@@ -767,6 +1425,10 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 ),
                 validator: FilamentValidation.validateNotes,
                 textCapitalization: TextCapitalization.sentences,
+              ),
+                    ],
+                  ),
+                ),
               ),
               
               const SizedBox(height: 32),
