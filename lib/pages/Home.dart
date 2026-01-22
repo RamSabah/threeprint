@@ -160,7 +160,7 @@ class _HomePageState extends State<HomePage> {
           sliver: SliverGrid(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.8,
+              childAspectRatio: 1.15,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),
@@ -277,7 +277,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             // Color indicator and count
             Container(
-              height: 80,
+              height: 60,
               decoration: BoxDecoration(
                 color: cardColor,
                 borderRadius: const BorderRadius.only(
@@ -350,37 +350,111 @@ class _HomePageState extends State<HomePage> {
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Brand name
                     Text(
                       filament.brand,
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      '${filament.diameter}mm • ${filament.weight.toInt()}g',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const Spacer(),
-                    if (filament.cost != null)
-                      Text(
-                        '\$${filament.cost!.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF2BAE66),
+                    
+                    // Diameter and weight
+                    Row(
+                      children: [
+                        Icon(Icons.straighten, size: 11, color: Colors.grey[600]),
+                        const SizedBox(width: 3),
+                        Text(
+                          '${filament.diameter}mm',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 6),
+                        Icon(Icons.scale, size: 11, color: Colors.grey[600]),
+                        const SizedBox(width: 3),
+                        Text(
+                          '${filament.weight.toInt()}g',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 3),
+                    
+                    // Quantity
+                    Row(
+                      children: [
+                        Icon(Icons.inventory_2, size: 11, color: Colors.grey[600]),
+                        const SizedBox(width: 3),
+                        Text(
+                          '${filament.quantity} spool${filament.quantity != 1 ? 's' : ''}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const Spacer(),
+                    
+                    // Bottom row with cost and storage
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Cost
+                        if (filament.cost != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF2BAE66).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '\$${filament.cost!.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF2BAE66),
+                              ),
+                            ),
+                          ),
+                        // Storage location indicator
+                        if (filament.storageLocation != null && filament.storageLocation!.isNotEmpty)
+                          Flexible(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.location_on, size: 12, color: Colors.grey[500]),
+                                const SizedBox(width: 2),
+                                Flexible(
+                                  child: Text(
+                                    filament.storageLocation!,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.grey[500],
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),

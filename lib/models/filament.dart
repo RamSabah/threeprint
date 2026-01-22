@@ -14,6 +14,14 @@ class Filament {
   final double? cost; // optional cost
   final String? storageLocation; // optional storage location
   final String? notes; // optional notes
+  final double? density; // optional density in g/cm³
+  final String? spoolType; // optional spool type
+  final int? extruderTemp; // optional extruder temperature in °C
+  final int? bedTemp; // optional bed temperature in °C
+  final String? finish; // optional finish (matte, glossy, etc.)
+  final String? pattern; // optional pattern (solid, multicolor, etc.)
+  final bool? isTranslucent; // optional translucent property
+  final bool? isGlowInDark; // optional glow in dark property
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -31,6 +39,14 @@ class Filament {
     this.cost,
     this.storageLocation,
     this.notes,
+    this.density,
+    this.spoolType,
+    this.extruderTemp,
+    this.bedTemp,
+    this.finish,
+    this.pattern,
+    this.isTranslucent,
+    this.isGlowInDark,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -52,6 +68,14 @@ class Filament {
       cost: data['cost']?.toDouble(),
       storageLocation: data['storageLocation'],
       notes: data['notes'],
+      density: data['density']?.toDouble(),
+      spoolType: data['spoolType'],
+      extruderTemp: data['extruderTemp']?.toInt(),
+      bedTemp: data['bedTemp']?.toInt(),
+      finish: data['finish'],
+      pattern: data['pattern'],
+      isTranslucent: data['isTranslucent'],
+      isGlowInDark: data['isGlowInDark'],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
@@ -77,6 +101,14 @@ class Filament {
     if (cost != null) data['cost'] = cost;
     if (storageLocation != null && storageLocation!.isNotEmpty) data['storageLocation'] = storageLocation;
     if (notes != null && notes!.isNotEmpty) data['notes'] = notes;
+    if (density != null) data['density'] = density;
+    if (spoolType != null && spoolType!.isNotEmpty) data['spoolType'] = spoolType;
+    if (extruderTemp != null) data['extruderTemp'] = extruderTemp;
+    if (bedTemp != null) data['bedTemp'] = bedTemp;
+    if (finish != null && finish!.isNotEmpty) data['finish'] = finish;
+    if (pattern != null && pattern!.isNotEmpty) data['pattern'] = pattern;
+    if (isTranslucent != null) data['isTranslucent'] = isTranslucent;
+    if (isGlowInDark != null) data['isGlowInDark'] = isGlowInDark;
     
     return data;
   }
@@ -96,6 +128,14 @@ class Filament {
     double? cost,
     String? storageLocation,
     String? notes,
+    double? density,
+    String? spoolType,
+    int? extruderTemp,
+    int? bedTemp,
+    String? finish,
+    String? pattern,
+    bool? isTranslucent,
+    bool? isGlowInDark,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -113,6 +153,14 @@ class Filament {
       cost: cost ?? this.cost,
       storageLocation: storageLocation ?? this.storageLocation,
       notes: notes ?? this.notes,
+      density: density ?? this.density,
+      spoolType: spoolType ?? this.spoolType,
+      extruderTemp: extruderTemp ?? this.extruderTemp,
+      bedTemp: bedTemp ?? this.bedTemp,
+      finish: finish ?? this.finish,
+      pattern: pattern ?? this.pattern,
+      isTranslucent: isTranslucent ?? this.isTranslucent,
+      isGlowInDark: isGlowInDark ?? this.isGlowInDark,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

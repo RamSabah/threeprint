@@ -26,6 +26,14 @@ class FilamentService {
     double? cost,
     String? storageLocation,
     String? notes,
+    double? density,
+    String? spoolType,
+    int? extruderTemp,
+    int? bedTemp,
+    String? finish,
+    String? pattern,
+    bool? isTranslucent,
+    bool? isGlowInDark,
   }) async {
     try {
       final userId = _currentUserId;
@@ -50,6 +58,14 @@ class FilamentService {
         cost: cost,
         storageLocation: storageLocation,
         notes: notes,
+        density: density,
+        spoolType: spoolType,
+        extruderTemp: extruderTemp,
+        bedTemp: bedTemp,
+        finish: finish,
+        pattern: pattern,
+        isTranslucent: isTranslucent,
+        isGlowInDark: isGlowInDark,
         createdAt: now,
         updatedAt: now,
       );
@@ -142,6 +158,20 @@ class FilamentService {
     bool clearStorageLocation = false,
     String? notes,
     bool clearNotes = false,
+    double? density,
+    bool clearDensity = false,
+    String? spoolType,
+    bool clearSpoolType = false,
+    int? extruderTemp,
+    bool clearExtruderTemp = false,
+    int? bedTemp,
+    bool clearBedTemp = false,
+    String? finish,
+    bool clearFinish = false,
+    String? pattern,
+    bool clearPattern = false,
+    bool? isTranslucent,
+    bool? isGlowInDark,
   }) async {
     try {
       final userId = _currentUserId;
@@ -184,6 +214,50 @@ class FilamentService {
         updateData['notes'] = FieldValue.delete();
       } else if (notes != null) {
         updateData['notes'] = notes;
+      }
+
+      if (clearDensity) {
+        updateData['density'] = FieldValue.delete();
+      } else if (density != null) {
+        updateData['density'] = density;
+      }
+
+      if (clearSpoolType) {
+        updateData['spoolType'] = FieldValue.delete();
+      } else if (spoolType != null) {
+        updateData['spoolType'] = spoolType;
+      }
+
+      if (clearExtruderTemp) {
+        updateData['extruderTemp'] = FieldValue.delete();
+      } else if (extruderTemp != null) {
+        updateData['extruderTemp'] = extruderTemp;
+      }
+
+      if (clearBedTemp) {
+        updateData['bedTemp'] = FieldValue.delete();
+      } else if (bedTemp != null) {
+        updateData['bedTemp'] = bedTemp;
+      }
+
+      if (clearFinish) {
+        updateData['finish'] = FieldValue.delete();
+      } else if (finish != null) {
+        updateData['finish'] = finish;
+      }
+
+      if (clearPattern) {
+        updateData['pattern'] = FieldValue.delete();
+      } else if (pattern != null) {
+        updateData['pattern'] = pattern;
+      }
+
+      if (isTranslucent != null) {
+        updateData['isTranslucent'] = isTranslucent;
+      }
+
+      if (isGlowInDark != null) {
+        updateData['isGlowInDark'] = isGlowInDark;
       }
 
       await _firestore

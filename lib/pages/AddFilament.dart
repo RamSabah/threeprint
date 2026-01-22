@@ -29,6 +29,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   // New fields
   final _densityController = TextEditingController(text: '1.24');
   final _spoolWeightController = TextEditingController();
+  final _spoolTypeController = TextEditingController();
   final _extruderTempController = TextEditingController();
   final _bedTempController = TextEditingController();
   final _finishController = TextEditingController();
@@ -80,6 +81,16 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _storageLocationController.text = filament.storageLocation ?? '';
     _notesController.text = filament.notes ?? '';
     
+    // Initialize new fields
+    _densityController.text = filament.density?.toString() ?? '';
+    _spoolTypeController.text = filament.spoolType ?? '';
+    _extruderTempController.text = filament.extruderTemp?.toString() ?? '';
+    _bedTempController.text = filament.bedTemp?.toString() ?? '';
+    _finishController.text = filament.finish ?? '';
+    _patternController.text = filament.pattern ?? '';
+    _isTranslucent = filament.isTranslucent ?? false;
+    _isGlowInDark = filament.isGlowInDark ?? false;
+    
     // Initialize color from hex string
     try {
       if (filament.color.isNotEmpty) {
@@ -108,6 +119,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _notesFocusNode.dispose();
     _densityController.dispose();
     _spoolWeightController.dispose();
+    _spoolTypeController.dispose();
     _extruderTempController.dispose();
     _bedTempController.dispose();
     _finishController.dispose();
@@ -168,6 +180,32 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 ? _notesController.text.trim() 
                 : null,
             clearNotes: originalFilament.notes != null && _notesController.text.isEmpty,
+            density: _densityController.text.isNotEmpty 
+                ? double.tryParse(_densityController.text) 
+                : null,
+            clearDensity: originalFilament.density != null && _densityController.text.isEmpty,
+            spoolType: _spoolTypeController.text.isNotEmpty 
+                ? _spoolTypeController.text.trim() 
+                : null,
+            clearSpoolType: originalFilament.spoolType != null && _spoolTypeController.text.isEmpty,
+            extruderTemp: _extruderTempController.text.isNotEmpty 
+                ? int.tryParse(_extruderTempController.text) 
+                : null,
+            clearExtruderTemp: originalFilament.extruderTemp != null && _extruderTempController.text.isEmpty,
+            bedTemp: _bedTempController.text.isNotEmpty 
+                ? int.tryParse(_bedTempController.text) 
+                : null,
+            clearBedTemp: originalFilament.bedTemp != null && _bedTempController.text.isEmpty,
+            finish: _finishController.text.isNotEmpty 
+                ? _finishController.text.trim() 
+                : null,
+            clearFinish: originalFilament.finish != null && _finishController.text.isEmpty,
+            pattern: _patternController.text.isNotEmpty 
+                ? _patternController.text.trim() 
+                : null,
+            clearPattern: originalFilament.pattern != null && _patternController.text.isEmpty,
+            isTranslucent: _isTranslucent,
+            isGlowInDark: _isGlowInDark,
           );
           
           // Show success message
@@ -207,6 +245,26 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             notes: _notesController.text.isNotEmpty 
                 ? _notesController.text.trim() 
                 : null,
+            density: _densityController.text.isNotEmpty 
+                ? double.tryParse(_densityController.text) 
+                : null,
+            spoolType: _spoolTypeController.text.isNotEmpty 
+                ? _spoolTypeController.text.trim() 
+                : null,
+            extruderTemp: _extruderTempController.text.isNotEmpty 
+                ? int.tryParse(_extruderTempController.text) 
+                : null,
+            bedTemp: _bedTempController.text.isNotEmpty 
+                ? int.tryParse(_bedTempController.text) 
+                : null,
+            finish: _finishController.text.isNotEmpty 
+                ? _finishController.text.trim() 
+                : null,
+            pattern: _patternController.text.isNotEmpty 
+                ? _patternController.text.trim() 
+                : null,
+            isTranslucent: _isTranslucent,
+            isGlowInDark: _isGlowInDark,
           );
 
           // Show success message
