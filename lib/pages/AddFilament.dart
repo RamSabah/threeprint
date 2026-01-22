@@ -319,18 +319,6 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset(
-                          'lib/assets/icons/Filament_Roll.png',
-                          width: 80,
-                          height: 80,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.inventory_2,
-                              size: 80,
-                              color: Colors.grey,
-                            );
-                          },
-                        ),
                         const SizedBox(height: 16),
                         Text(
                           widget.filamentToEdit != null ? 'Edit Filament' : 'Add New Filament',
