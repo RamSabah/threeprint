@@ -113,6 +113,7 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
             expandedHeight: 200,
             pinned: true,
             backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 widget.filament.brand,
