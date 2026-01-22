@@ -307,7 +307,7 @@ class _HomePageState extends State<HomePage> {
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(2),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -402,18 +402,61 @@ class _HomePageState extends State<HomePage> {
                     
                     const SizedBox(height: 1),
                     
-                    // Quantity
+                    // Temperatures
                     Row(
                       children: [
-                        Icon(Icons.inventory_2, size: 11, color: Colors.grey[600]),
-                        const SizedBox(width: 3),
-                        Text(
-                          '${filament.quantity} spool${filament.quantity != 1 ? 's' : ''}',
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey[600],
+                        // Extruder Temperature
+                        if (filament.extruderTempRange != null && filament.extruderTempRange!.length == 2) ...[
+                          Icon(Icons.thermostat, size: 11, color: Colors.grey[600]),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              '${filament.extruderTempRange![0]}-${filament.extruderTempRange![1]}°C',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey[600],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 6),
+                        ] else if (filament.extruderTemp != null) ...[
+                          Icon(Icons.thermostat, size: 11, color: Colors.grey[600]),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${filament.extruderTemp}°C',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                        ],
+                        // Bed Temperature
+                        if (filament.bedTempRange != null && filament.bedTempRange!.length == 2) ...[
+                          Icon(Icons.layers, size: 11, color: Colors.grey[600]),
+                          const SizedBox(width: 2),
+                          Flexible(
+                            child: Text(
+                              '${filament.bedTempRange![0]}-${filament.bedTempRange![1]}°C',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey[600],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ] else if (filament.bedTemp != null) ...[
+                          Icon(Icons.layers, size: 11, color: Colors.grey[600]),
+                          const SizedBox(width: 2),
+                          Text(
+                            '${filament.bedTemp}°C',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     

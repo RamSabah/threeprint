@@ -18,7 +18,9 @@ class Filament {
   final double? density; // optional density in g/cm³
   final String? spoolType; // optional spool type
   final int? extruderTemp; // optional extruder temperature in °C
+  final List<int>? extruderTempRange; // optional extruder temperature range [min, max] in °C
   final int? bedTemp; // optional bed temperature in °C
+  final List<int>? bedTempRange; // optional bed temperature range [min, max] in °C
   final String? finish; // optional finish (matte, glossy, etc.)
   final String? pattern; // optional pattern (solid, multicolor, etc.)
   final bool? isTranslucent; // optional translucent property
@@ -44,7 +46,9 @@ class Filament {
     this.density,
     this.spoolType,
     this.extruderTemp,
+    this.extruderTempRange,
     this.bedTemp,
+    this.bedTempRange,
     this.finish,
     this.pattern,
     this.isTranslucent,
@@ -74,7 +78,13 @@ class Filament {
       density: data['density']?.toDouble(),
       spoolType: data['spoolType'],
       extruderTemp: data['extruderTemp']?.toInt(),
+      extruderTempRange: data['extruderTempRange'] != null
+          ? List<int>.from(data['extruderTempRange'])
+          : null,
       bedTemp: data['bedTemp']?.toInt(),
+      bedTempRange: data['bedTempRange'] != null
+          ? List<int>.from(data['bedTempRange'])
+          : null,
       finish: data['finish'],
       pattern: data['pattern'],
       isTranslucent: data['isTranslucent'],
@@ -108,7 +118,9 @@ class Filament {
     if (density != null) data['density'] = density;
     if (spoolType != null && spoolType!.isNotEmpty) data['spoolType'] = spoolType;
     if (extruderTemp != null) data['extruderTemp'] = extruderTemp;
+    if (extruderTempRange != null && extruderTempRange!.isNotEmpty) data['extruderTempRange'] = extruderTempRange;
     if (bedTemp != null) data['bedTemp'] = bedTemp;
+    if (bedTempRange != null && bedTempRange!.isNotEmpty) data['bedTempRange'] = bedTempRange;
     if (finish != null && finish!.isNotEmpty) data['finish'] = finish;
     if (pattern != null && pattern!.isNotEmpty) data['pattern'] = pattern;
     if (isTranslucent != null) data['isTranslucent'] = isTranslucent;
@@ -136,7 +148,9 @@ class Filament {
     double? density,
     String? spoolType,
     int? extruderTemp,
+    List<int>? extruderTempRange,
     int? bedTemp,
+    List<int>? bedTempRange,
     String? finish,
     String? pattern,
     bool? isTranslucent,
@@ -162,7 +176,9 @@ class Filament {
       density: density ?? this.density,
       spoolType: spoolType ?? this.spoolType,
       extruderTemp: extruderTemp ?? this.extruderTemp,
+      extruderTempRange: extruderTempRange ?? this.extruderTempRange,
       bedTemp: bedTemp ?? this.bedTemp,
+      bedTempRange: bedTempRange ?? this.bedTempRange,
       finish: finish ?? this.finish,
       pattern: pattern ?? this.pattern,
       isTranslucent: isTranslucent ?? this.isTranslucent,

@@ -307,9 +307,13 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
               ],
             ),
             const SizedBox(height: 16),
-            if (widget.filament.extruderTemp != null)
+            if (widget.filament.extruderTempRange != null && widget.filament.extruderTempRange!.length == 2)
+              _buildInfoRowWithIcon(Icons.whatshot, 'Extruder Temperature', '${widget.filament.extruderTempRange![0]}-${widget.filament.extruderTempRange![1]}°C')
+            else if (widget.filament.extruderTemp != null)
               _buildInfoRowWithIcon(Icons.whatshot, 'Extruder Temperature', '${widget.filament.extruderTemp}°C'),
-            if (widget.filament.bedTemp != null)
+            if (widget.filament.bedTempRange != null && widget.filament.bedTempRange!.length == 2)
+              _buildInfoRowWithIcon(Icons.layers, 'Bed Temperature', '${widget.filament.bedTempRange![0]}-${widget.filament.bedTempRange![1]}°C')
+            else if (widget.filament.bedTemp != null)
               _buildInfoRowWithIcon(Icons.layers, 'Bed Temperature', '${widget.filament.bedTemp}°C'),
           ],
         ),

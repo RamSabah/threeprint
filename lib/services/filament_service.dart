@@ -30,7 +30,9 @@ class FilamentService {
     double? density,
     String? spoolType,
     int? extruderTemp,
+    List<int>? extruderTempRange,
     int? bedTemp,
+    List<int>? bedTempRange,
     String? finish,
     String? pattern,
     bool? isTranslucent,
@@ -63,7 +65,9 @@ class FilamentService {
         density: density,
         spoolType: spoolType,
         extruderTemp: extruderTemp,
+        extruderTempRange: extruderTempRange,
         bedTemp: bedTemp,
+        bedTempRange: bedTempRange,
         finish: finish,
         pattern: pattern,
         isTranslucent: isTranslucent,
@@ -168,8 +172,12 @@ class FilamentService {
     bool clearSpoolType = false,
     int? extruderTemp,
     bool clearExtruderTemp = false,
+    List<int>? extruderTempRange,
+    bool clearExtruderTempRange = false,
     int? bedTemp,
     bool clearBedTemp = false,
+    List<int>? bedTempRange,
+    bool clearBedTempRange = false,
     String? finish,
     bool clearFinish = false,
     String? pattern,
@@ -245,10 +253,22 @@ class FilamentService {
         updateData['extruderTemp'] = extruderTemp;
       }
 
+      if (clearExtruderTempRange) {
+        updateData['extruderTempRange'] = FieldValue.delete();
+      } else if (extruderTempRange != null) {
+        updateData['extruderTempRange'] = extruderTempRange;
+      }
+
       if (clearBedTemp) {
         updateData['bedTemp'] = FieldValue.delete();
       } else if (bedTemp != null) {
         updateData['bedTemp'] = bedTemp;
+      }
+
+      if (clearBedTempRange) {
+        updateData['bedTempRange'] = FieldValue.delete();
+      } else if (bedTempRange != null) {
+        updateData['bedTempRange'] = bedTempRange;
       }
 
       if (clearFinish) {
@@ -453,7 +473,9 @@ class FilamentService {
     String? colorHex,
     List<String>? colorHexes,
     int? extruderTemp,
+    List<int>? extruderTempRange,
     int? bedTemp,
+    List<int>? bedTempRange,
     String? finish,
     String? pattern,
     bool? isTranslucent,
@@ -496,7 +518,9 @@ class FilamentService {
         density: density,
         spoolType: spoolType,
         extruderTemp: extruderTemp,
+        extruderTempRange: extruderTempRange,
         bedTemp: bedTemp,
+        bedTempRange: bedTempRange,
         finish: finish,
         pattern: pattern,
         isTranslucent: isTranslucent,

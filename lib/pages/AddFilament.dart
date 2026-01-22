@@ -32,7 +32,11 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   final _spoolWeightController = TextEditingController();
   final _spoolTypeController = TextEditingController();
   final _extruderTempController = TextEditingController();
+  final _extruderTempMinController = TextEditingController();
+  final _extruderTempMaxController = TextEditingController();
   final _bedTempController = TextEditingController();
+  final _bedTempMinController = TextEditingController();
+  final _bedTempMaxController = TextEditingController();
   final _finishController = TextEditingController();
   final _patternController = TextEditingController();
   
@@ -87,7 +91,15 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _densityController.text = filament.density?.toString() ?? '';
     _spoolTypeController.text = filament.spoolType ?? '';
     _extruderTempController.text = filament.extruderTemp?.toString() ?? '';
+    if (filament.extruderTempRange != null && filament.extruderTempRange!.length == 2) {
+      _extruderTempMinController.text = filament.extruderTempRange![0].toString();
+      _extruderTempMaxController.text = filament.extruderTempRange![1].toString();
+    }
     _bedTempController.text = filament.bedTemp?.toString() ?? '';
+    if (filament.bedTempRange != null && filament.bedTempRange!.length == 2) {
+      _bedTempMinController.text = filament.bedTempRange![0].toString();
+      _bedTempMaxController.text = filament.bedTempRange![1].toString();
+    }
     _finishController.text = filament.finish ?? '';
     _patternController.text = filament.pattern ?? '';
     _isTranslucent = filament.isTranslucent ?? false;
@@ -124,7 +136,11 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _spoolWeightController.dispose();
     _spoolTypeController.dispose();
     _extruderTempController.dispose();
+    _extruderTempMinController.dispose();
+    _extruderTempMaxController.dispose();
     _bedTempController.dispose();
+    _bedTempMinController.dispose();
+    _bedTempMaxController.dispose();
     _finishController.dispose();
     _patternController.dispose();
     super.dispose();
@@ -199,10 +215,18 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 ? int.tryParse(_extruderTempController.text) 
                 : null,
             clearExtruderTemp: originalFilament.extruderTemp != null && _extruderTempController.text.isEmpty,
+            extruderTempRange: (_extruderTempMinController.text.isNotEmpty && _extruderTempMaxController.text.isNotEmpty)
+                ? [int.parse(_extruderTempMinController.text), int.parse(_extruderTempMaxController.text)]
+                : null,
+            clearExtruderTempRange: originalFilament.extruderTempRange != null && _extruderTempMinController.text.isEmpty && _extruderTempMaxController.text.isEmpty,
             bedTemp: _bedTempController.text.isNotEmpty 
                 ? int.tryParse(_bedTempController.text) 
                 : null,
             clearBedTemp: originalFilament.bedTemp != null && _bedTempController.text.isEmpty,
+            bedTempRange: (_bedTempMinController.text.isNotEmpty && _bedTempMaxController.text.isNotEmpty)
+                ? [int.parse(_bedTempMinController.text), int.parse(_bedTempMaxController.text)]
+                : null,
+            clearBedTempRange: originalFilament.bedTempRange != null && _bedTempMinController.text.isEmpty && _bedTempMaxController.text.isEmpty,
             finish: _finishController.text.isNotEmpty 
                 ? _finishController.text.trim() 
                 : null,
@@ -264,8 +288,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             extruderTemp: _extruderTempController.text.isNotEmpty 
                 ? int.tryParse(_extruderTempController.text) 
                 : null,
+            extruderTempRange: (_extruderTempMinController.text.isNotEmpty && _extruderTempMaxController.text.isNotEmpty)
+                ? [int.parse(_extruderTempMinController.text), int.parse(_extruderTempMaxController.text)]
+                : null,
             bedTemp: _bedTempController.text.isNotEmpty 
                 ? int.tryParse(_bedTempController.text) 
+                : null,
+            bedTempRange: (_bedTempMinController.text.isNotEmpty && _bedTempMaxController.text.isNotEmpty)
+                ? [int.parse(_bedTempMinController.text), int.parse(_bedTempMaxController.text)]
                 : null,
             finish: _finishController.text.isNotEmpty 
                 ? _finishController.text.trim() 
@@ -340,7 +370,11 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _storageLocationController.clear();
     _notesController.clear();
     _extruderTempController.clear();
+    _extruderTempMinController.clear();
+    _extruderTempMaxController.clear();
     _bedTempController.clear();
+    _bedTempMinController.clear();
+    _bedTempMaxController.clear();
     _finishController.clear();
     _patternController.clear();
   }
@@ -1112,6 +1146,68 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                                   ),
                                 ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Or Temperature Range',
+                                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _extruderTempMinController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.grey.shade50,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                                          ),
+                                          hintText: 'Min',
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
+                                      child: Text('-', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    ),
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _extruderTempMaxController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.grey.shade50,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                                          ),
+                                          hintText: 'Max',
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
@@ -1149,6 +1245,68 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                     hintText: '60',
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                                   ),
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Or Temperature Range',
+                                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _bedTempMinController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.grey.shade50,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                                          ),
+                                          hintText: 'Min',
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8),
+                                      child: Text('-', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    ),
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: _bedTempMaxController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: Colors.grey.shade50,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide.none,
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                                          ),
+                                          hintText: 'Max',
+                                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
