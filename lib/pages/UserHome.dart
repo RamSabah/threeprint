@@ -19,6 +19,16 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
   final FilamentService _filamentService = FilamentService();
   bool _isDeleting = false;
 
+  String _getBrandLogoPath(String brandName) {
+    // For brands with hyphens (like "3D-Fuel"), use exact name with .jpg extension
+    if (brandName.contains('-')) {
+      return 'lib/assets/logo/brand/$brandName.jpg';
+    }
+    
+    // For other brands, use first letter capitalized + rest lowercase + "logo"
+    return 'lib/assets/logo/brand/${brandName[0]}${brandName.substring(1).toLowerCase()}logo.jpg';
+  }
+
   Color _getColorFromHex(String? hexColor) {
     if (hexColor == null || hexColor.isEmpty) {
       return Colors.grey;
@@ -115,21 +125,26 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
             backgroundColor: Colors.white,
             foregroundColor: Colors.black87,
             flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(left: 56, bottom: 16),
               title: Text(
                 widget.filament.brand,
-                style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
               ),
               background: Container(
                 color: Colors.white,
                 child: Center(
                   child: Image.asset(
-                    'lib/assets/logo/brand/${widget.filament.brand[0]}${widget.filament.brand.substring(1).toLowerCase()}logo.jpg',
+                    _getBrandLogoPath(widget.filament.brand),
                     fit: BoxFit.contain,
-                    height: 120,
+                    height: 150,
                     errorBuilder: (context, error, stackTrace) {
-                      // Fallback to printer icon if brand logo not found
-                      print('Error loading image for ${widget.filament.brand}: $error');
-                      return Icon(Icons.print, size: 80, color: Colors.grey[300]);
+                      print('Error loading logo for ${widget.filament.brand}: $error');
+                      print('Attempted path: ${_getBrandLogoPath(widget.filament.brand)}');
+                      return Icon(Icons.print, size: 100, color: Colors.grey[300]);
                     },
                   ),
                 ),
