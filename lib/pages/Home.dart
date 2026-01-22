@@ -203,35 +203,37 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildStatCard(String label, String value, IconData icon) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 10,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
-          const SizedBox(height: 8),
           Text(
             value,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.secondary,
+              height: 1,
             ),
           ),
+          const SizedBox(height: 6),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: Colors.grey,
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
