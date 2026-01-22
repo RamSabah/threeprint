@@ -307,7 +307,7 @@ class _HomePageState extends State<HomePage> {
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(7),
+                padding: const EdgeInsets.all(2),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -319,7 +319,7 @@ class _HomePageState extends State<HomePage> {
                           child: Text(
                             filament.brand,
                             style: const TextStyle(
-                              fontSize: 14,
+                              fontSize: 13,
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 1,
@@ -328,7 +328,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: cardColor,
                             borderRadius: BorderRadius.circular(20),
@@ -358,7 +358,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 1),
                     // Material type
                     Text(
                       filament.productName != null && filament.productName!.isNotEmpty
@@ -373,7 +373,7 @@ class _HomePageState extends State<HomePage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 1),
                     
                     // Diameter and weight
                     Row(
@@ -417,7 +417,7 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     
-                    const Spacer(),
+                    const SizedBox(height: 1),
                     
                     // Bottom row with cost and storage
                     Row(
@@ -434,7 +434,7 @@ class _HomePageState extends State<HomePage> {
                             child: Text(
                               '\$${filament.cost!.toStringAsFixed(2)}',
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF2BAE66),
                               ),
@@ -446,7 +446,7 @@ class _HomePageState extends State<HomePage> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.location_on, size: 12, color: Colors.grey[500]),
+                                Icon(Icons.location_on, size: 11, color: Colors.grey[500]),
                                 const SizedBox(width: 2),
                                 Flexible(
                                   child: Text(
