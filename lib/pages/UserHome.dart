@@ -112,32 +112,32 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
-            backgroundColor: filamentColor,
+            backgroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
                 widget.filament.brand,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
               ),
               background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      filamentColor,
-                      filamentColor.withOpacity(0.7),
-                    ],
+                color: Colors.white,
+                child: Center(
+                  child: Image.asset(
+                    'lib/assets/logo/brand/${widget.filament.brand[0]}${widget.filament.brand.substring(1).toLowerCase()}logo.jpg',
+                    fit: BoxFit.contain,
+                    height: 120,
+                    errorBuilder: (context, error, stackTrace) {
+                      // Fallback to printer icon if brand logo not found
+                      print('Error loading image for ${widget.filament.brand}: $error');
+                      return Icon(Icons.print, size: 80, color: Colors.grey[300]);
+                    },
                   ),
-                ),
-                child: const Center(
-                  child: Icon(Icons.print, size: 80, color: Colors.white38),
                 ),
               ),
             ),
             actions: [
               IconButton(
                 onPressed: _editFilament,
-                icon: const Icon(Icons.edit, color: Colors.white),
+                icon: const Icon(Icons.edit, color: Colors.black87),
                 tooltip: 'Edit Filament',
               ),
               IconButton(
@@ -148,10 +148,10 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
                         ),
                       )
-                    : const Icon(Icons.delete, color: Colors.white),
+                    : const Icon(Icons.delete, color: Colors.black87),
                 tooltip: 'Delete Filament',
               ),
             ],
