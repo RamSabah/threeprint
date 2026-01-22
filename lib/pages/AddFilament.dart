@@ -253,18 +253,27 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   void _resetForm() {
     setState(() {
       _selectedFilamentType = null;
+      _selectedSpoolType = null;
       _selectedColor = Colors.red;
       _selectedColorName = 'Red';
+      _isTranslucent = false;
+      _isGlowInDark = false;
     });
     _countController.clear();
     _brandController.clear();
     _weightController.text = '1000';
     _diameterController.text = '1.75';
     _quantityController.text = '1';
+    _densityController.text = '1.24';
     _emptySpoolWeightController.clear();
+    _spoolWeightController.clear();
     _costController.clear();
     _storageLocationController.clear();
     _notesController.clear();
+    _extruderTempController.clear();
+    _bedTempController.clear();
+    _finishController.clear();
+    _patternController.clear();
   }
 
 
@@ -293,7 +302,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       top: 0,
                       right: 0,
                       child: IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () {
+                          // Unfocus any text fields before closing
+                          FocusScope.of(context).unfocus();
+                          // Close the page
+                          Navigator.of(context).pop();
+                        },
                         icon: const Icon(Icons.close),
                         style: IconButton.styleFrom(
                           backgroundColor: Colors.grey.shade100,
@@ -1438,7 +1452,24 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+                      onPressed: _isSaving ? null : () {
+                        if (widget.filamentToEdit != null) {
+                          // If editing, cancel and go back
+                          FocusScope.of(context).unfocus();
+                          Navigator.of(context).pop();
+                        } else {
+                          // If adding new, clear all fields
+                          _resetForm();
+                          FocusScope.of(context).unfocus();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('All fields cleared'),
+                              duration: const Duration(seconds: 2),
+                              backgroundColor: Colors.grey.shade700,
+                            ),
+                          );
+                        }
+                      },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: Colors.grey.shade400, width: 1.5),
@@ -1446,16 +1477,20 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.close),
-                          SizedBox(width: 8),
-                          Text('Cancel', style: TextStyle(fontSize: 16)),
+                          Icon(widget.filamentToEdit != null ? Icons.close : Icons.clear_all),
+                          const SizedBox(width: 8),
+                          Text(
+                            widget.filamentToEdit != null ? 'Cancel' : 'Clear Fields',
+                            style: const TextStyle(fontSize: 16),
+                          ),
                         ],
                       ),
                     ),
                   ),
+                  const SizedBox(width: 12),
                   const SizedBox(width: 12),
                   Expanded(
                     flex: 2,
