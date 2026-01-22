@@ -17,6 +17,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   final _formKey = GlobalKey<FormState>();
   final _countController = TextEditingController();
   final _brandController = TextEditingController();
+  final _productNameController = TextEditingController();
   final _weightController = TextEditingController(text: '1000');
   final _diameterController = TextEditingController(text: '1.75');
   final _quantityController = TextEditingController(text: '1');
@@ -73,6 +74,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     _selectedFilamentType = filament.type;
     _countController.text = filament.count.toString();
     _brandController.text = filament.brand;
+    _productNameController.text = filament.productName ?? '';
     _weightController.text = filament.weight.toString();
     _diameterController.text = filament.diameter.toString();
     _quantityController.text = filament.quantity.toString();
@@ -109,6 +111,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   void dispose() {
     _countController.dispose();
     _brandController.dispose();
+    _productNameController.dispose();
     _weightController.dispose();
     _diameterController.dispose();
     _quantityController.dispose();
@@ -161,6 +164,10 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             color: finalColor,
             count: int.parse(_countController.text),
             brand: _brandController.text,
+            productName: _productNameController.text.isNotEmpty 
+                ? _productNameController.text.trim() 
+                : null,
+            clearProductName: originalFilament.productName != null && _productNameController.text.isEmpty,
             weight: double.parse(_weightController.text),
             diameter: double.parse(_diameterController.text),
             quantity: int.parse(_quantityController.text),
@@ -230,6 +237,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
             color: finalColor,
             count: int.parse(_countController.text),
             brand: _brandController.text,
+            productName: _productNameController.text.isNotEmpty 
+                ? _productNameController.text.trim() 
+                : null,
             weight: double.parse(_weightController.text),
             diameter: double.parse(_diameterController.text),
             quantity: int.parse(_quantityController.text),
@@ -319,6 +329,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
     });
     _countController.clear();
     _brandController.clear();
+    _productNameController.clear();
     _weightController.text = '1000';
     _diameterController.text = '1.75';
     _quantityController.text = '1';
@@ -504,6 +515,37 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         ),
                         validator: FilamentValidation.validateFilamentBrand,
+                        textCapitalization: TextCapitalization.words,
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Product Name Input Field
+                      const Text(
+                        'Product Name (Optional)',
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 8),
+                      TextFormField(
+                        controller: _productNameController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade50,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
+                          ),
+                          prefixIcon: Icon(Icons.label, color: Theme.of(context).colorScheme.secondary),
+                          hintText: 'Enter product name (e.g., Dark Grey, Silk Gold)',
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        ),
                         textCapitalization: TextCapitalization.words,
                       ),
                     ],

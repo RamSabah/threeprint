@@ -202,6 +202,7 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
             const SizedBox(height: 16),
             _buildInfoRow('Type', widget.filament.type),
             _buildInfoRow('Brand', widget.filament.brand),
+            _buildInfoRow('Product Name', widget.filament.productName ?? 'N/A'),
             _buildInfoRow('Count', '${widget.filament.count} units'),
             Row(
               children: [

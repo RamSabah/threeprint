@@ -19,6 +19,7 @@ class FilamentService {
     required String color,
     required int count,
     required String brand,
+    String? productName,
     required double weight,
     required double diameter,
     required int quantity,
@@ -51,6 +52,7 @@ class FilamentService {
         color: color,
         count: count,
         brand: brand,
+        productName: productName,
         weight: weight,
         diameter: diameter,
         quantity: quantity,
@@ -147,6 +149,8 @@ class FilamentService {
     String? color,
     int? count,
     String? brand,
+    String? productName,
+    bool clearProductName = false,
     double? weight,
     double? diameter,
     int? quantity,
@@ -187,6 +191,13 @@ class FilamentService {
       if (color != null) updateData['color'] = color;
       if (count != null) updateData['count'] = count;
       if (brand != null) updateData['brand'] = brand;
+      
+      if (clearProductName) {
+        updateData['productName'] = FieldValue.delete();
+      } else if (productName != null) {
+        updateData['productName'] = productName;
+      }
+      
       if (weight != null) updateData['weight'] = weight;
       if (diameter != null) updateData['diameter'] = diameter;
       if (quantity != null) updateData['quantity'] = quantity;
@@ -432,13 +443,21 @@ class FilamentService {
     required String spoolmanId,
     required String displayName,
     required String manufacturer,
+    String? productName,
     required String material,
     required double diameter,
     required double weight,
+    double? density,
+    double? spoolWeight,
+    String? spoolType,
     String? colorHex,
     List<String>? colorHexes,
     int? extruderTemp,
     int? bedTemp,
+    String? finish,
+    String? pattern,
+    bool? isTranslucent,
+    bool? isGlowInDark,
     required int quantity,
     double? cost,
     String? notes,
@@ -469,9 +488,19 @@ class FilamentService {
         color: colorString,
         count: 1, // Default count
         brand: manufacturer,
+        productName: productName,
         weight: weight,
         diameter: diameter,
         quantity: quantity,
+        emptySpoolWeight: spoolWeight,
+        density: density,
+        spoolType: spoolType,
+        extruderTemp: extruderTemp,
+        bedTemp: bedTemp,
+        finish: finish,
+        pattern: pattern,
+        isTranslucent: isTranslucent,
+        isGlowInDark: isGlowInDark,
         cost: cost,
         notes: notes != null ? '$notes\n\nSpoolman ID: $spoolmanId' : 'Spoolman ID: $spoolmanId',
         createdAt: now,

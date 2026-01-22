@@ -7,6 +7,7 @@ class Filament {
   final String color;
   final int count;
   final String brand;
+  final String? productName;
   final double weight; // in grams
   final double diameter; // in mm
   final int quantity; // number of spools/rolls
@@ -32,6 +33,7 @@ class Filament {
     required this.color,
     required this.count,
     required this.brand,
+    this.productName,
     required this.weight,
     required this.diameter,
     required this.quantity,
@@ -61,6 +63,7 @@ class Filament {
       color: data['color'] ?? '',
       count: data['count'] ?? 0,
       brand: data['brand'] ?? '',
+      productName: data['productName'],
       weight: (data['weight'] ?? 1000.0).toDouble(),
       diameter: (data['diameter'] ?? 1.75).toDouble(),
       quantity: data['quantity'] ?? 1,
@@ -97,6 +100,7 @@ class Filament {
     };
     
     // Add optional fields only if they have values
+    if (productName != null && productName!.isNotEmpty) data['productName'] = productName;
     if (emptySpoolWeight != null) data['emptySpoolWeight'] = emptySpoolWeight;
     if (cost != null) data['cost'] = cost;
     if (storageLocation != null && storageLocation!.isNotEmpty) data['storageLocation'] = storageLocation;
@@ -121,6 +125,7 @@ class Filament {
     String? color,
     int? count,
     String? brand,
+    String? productName,
     double? weight,
     double? diameter,
     int? quantity,
@@ -146,6 +151,7 @@ class Filament {
       color: color ?? this.color,
       count: count ?? this.count,
       brand: brand ?? this.brand,
+      productName: productName ?? this.productName,
       weight: weight ?? this.weight,
       diameter: diameter ?? this.diameter,
       quantity: quantity ?? this.quantity,
