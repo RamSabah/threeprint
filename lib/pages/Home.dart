@@ -360,21 +360,18 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 4),
                     // Material type
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF1D1D1F),
-                        borderRadius: BorderRadius.circular(12),
+                    Text(
+                      filament.productName != null && filament.productName!.isNotEmpty
+                          ? '${filament.type}, ${filament.productName}'
+                          : filament.type,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.2,
                       ),
-                      child: Text(
-                        filament.type,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 3),
                     
