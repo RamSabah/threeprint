@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../models/filament.dart';
 
 class FilamentService {
@@ -9,11 +11,15 @@ class FilamentService {
   final Uuid _uuid = const Uuid();
   
   static const String _collection = 'filaments';
+  static const String _localStorageKey = 'local_filaments';
 
   /// Get current user ID
   String? get _currentUserId => _auth.currentUser?.uid;
+  
+  /// Check if user is logged in
+  bool get _isUserLoggedIn => _currentUserId != null;
 
-  /// Save a new filament to Firestore
+  /// Save a new filament (Firestore if logged in, local storage if not)
   Future<String> saveFilament({
     required String type,
     required String color,
@@ -39,13 +45,9 @@ class FilamentService {
     bool? isGlowInDark,
   }) async {
     try {
-      final userId = _currentUserId;
-      if (userId == null) {
-        throw Exception('User must be authenticated to save filament');
-      }
-
       final filamentId = _uuid.v4();
       final now = DateTime.now();
+      final userId = _currentUserId ?? 'local_user';
       
       final filament = Filament(
         id: filamentId,
@@ -76,10 +78,16 @@ class FilamentService {
         updatedAt: now,
       );
 
-      await _firestore
-          .collection(_collection)
-          .doc(filamentId)
-          .set(filament.toFirestore());
+      if (_isUserLoggedIn) {
+        // Save to Firestore
+        await _firestore
+            .collection(_collection)
+            .doc(filamentId)
+            .set(filament.toFirestore());
+      } else {
+        // Save to local storage
+        await _saveFilamentLocally(filament);
+      }
 
       return filamentId;
     } catch (e) {
@@ -87,32 +95,32 @@ class FilamentService {
     }
   }
 
-  /// Get all filaments for the current user
+  /// Get all filaments (Firestore if logged in, local storage if not)
   Future<List<Filament>> getUserFilaments() async {
     try {
-      final userId = _currentUserId;
-      if (userId == null) {
-        throw Exception('User must be authenticated to get filaments');
+      if (_isUserLoggedIn) {
+        // Get from Firestore
+        final userId = _currentUserId!;
+        final querySnapshot = await _firestore
+            .collection(_collection)
+            .where('userId', isEqualTo: userId)
+            .get();
+
+        // Sort locally by createdAt (descending)
+        final docs = querySnapshot.docs.toList()
+          ..sort((a, b) {
+            final aData = a.data() as Map<String, dynamic>;
+            final bData = b.data() as Map<String, dynamic>;
+            final aCreatedAt = (aData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+            final bCreatedAt = (bData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
+            return bCreatedAt.compareTo(aCreatedAt);
+          });
+
+        return docs.map((doc) => Filament.fromFirestore(doc)).toList();
+      } else {
+        // Get from local storage
+        return await _getLocalFilaments();
       }
-
-      final querySnapshot = await _firestore
-          .collection(_collection)
-          .where('userId', isEqualTo: userId)
-          .get();
-
-      // Sort locally by createdAt (descending) since we can't use orderBy without index
-      final docs = querySnapshot.docs.toList()
-        ..sort((a, b) {
-          final aData = a.data() as Map<String, dynamic>;
-          final bData = b.data() as Map<String, dynamic>;
-          final aCreatedAt = (aData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
-          final bCreatedAt = (bData['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
-          return bCreatedAt.compareTo(aCreatedAt); // Descending order
-        });
-
-      return docs
-          .map((doc) => Filament.fromFirestore(doc))
-          .toList();
     } catch (e) {
       throw Exception('Failed to get filaments: $e');
     }
@@ -300,33 +308,35 @@ class FilamentService {
     }
   }
 
-  /// Delete a filament
+  /// Delete a filament (Firestore if logged in, local storage if not)
   Future<void> deleteFilament(String filamentId) async {
     try {
-      final userId = _currentUserId;
-      if (userId == null) {
-        throw Exception('User must be authenticated to delete filament');
+      if (_isUserLoggedIn) {
+        final userId = _currentUserId!;
+        
+        // Verify the filament belongs to the current user
+        final doc = await _firestore
+            .collection(_collection)
+            .doc(filamentId)
+            .get();
+
+        if (!doc.exists) {
+          throw Exception('Filament not found');
+        }
+
+        final filament = Filament.fromFirestore(doc);
+        if (filament.userId != userId) {
+          throw Exception('Unauthorized to delete this filament');
+        }
+
+        await _firestore
+            .collection(_collection)
+            .doc(filamentId)
+            .delete();
+      } else {
+        // Delete from local storage
+        await _deleteFilamentLocally(filamentId);
       }
-
-      // Verify the filament belongs to the current user
-      final doc = await _firestore
-          .collection(_collection)
-          .doc(filamentId)
-          .get();
-
-      if (!doc.exists) {
-        throw Exception('Filament not found');
-      }
-
-      final filament = Filament.fromFirestore(doc);
-      if (filament.userId != userId) {
-        throw Exception('Unauthorized to delete this filament');
-      }
-
-      await _firestore
-          .collection(_collection)
-          .doc(filamentId)
-          .delete();
     } catch (e) {
       throw Exception('Failed to delete filament: $e');
     }
@@ -485,13 +495,9 @@ class FilamentService {
     String? notes,
   }) async {
     try {
-      final userId = _currentUserId;
-      if (userId == null) {
-        throw Exception('User must be authenticated to save filament');
-      }
-
       final filamentId = _uuid.v4();
       final now = DateTime.now();
+      final userId = _currentUserId ?? 'local_user';
       
       // Determine color string - use first color from multi-color or single color
       String colorString;
@@ -531,10 +537,16 @@ class FilamentService {
         updatedAt: now,
       );
 
-      await _firestore
-          .collection(_collection)
-          .doc(filamentId)
-          .set(filament.toFirestore());
+      if (_isUserLoggedIn) {
+        // Save to Firestore
+        await _firestore
+            .collection(_collection)
+            .doc(filamentId)
+            .set(filament.toFirestore());
+      } else {
+        // Save to local storage
+        await _saveFilamentLocally(filament);
+      }
 
       return filamentId;
     } catch (e) {
@@ -545,28 +557,116 @@ class FilamentService {
   /// Check if a SpoolmanFilament is already saved in user's library
   Future<bool> isSpoolmanFilamentSaved(String spoolmanId) async {
     try {
-      final userId = _currentUserId;
-      if (userId == null) {
-        return false;
-      }
+      if (_isUserLoggedIn) {
+        final userId = _currentUserId!;
+        final querySnapshot = await _firestore
+            .collection(_collection)
+            .where('userId', isEqualTo: userId)
+            .get();
 
-      final querySnapshot = await _firestore
-          .collection(_collection)
-          .where('userId', isEqualTo: userId)
-          .get();
-
-      // Check if any filament has the spoolmanId in notes
-      for (final doc in querySnapshot.docs) {
-        final data = doc.data();
-        final notes = data['notes'] as String?;
-        if (notes != null && notes.contains('Spoolman ID: $spoolmanId')) {
-          return true;
+        // Check if any filament has the spoolmanId in notes
+        for (final doc in querySnapshot.docs) {
+          final data = doc.data();
+          final notes = data['notes'] as String?;
+          if (notes != null && notes.contains('Spoolman ID: $spoolmanId')) {
+            return true;
+          }
         }
+        return false;
+      } else {
+        // Check local storage
+        final filaments = await _getLocalFilaments();
+        return filaments.any((f) => f.notes?.contains('Spoolman ID: $spoolmanId') ?? false);
       }
-
-      return false;
     } catch (e) {
       return false;
     }
+  }
+
+  // ==================== LOCAL STORAGE METHODS ====================
+
+  /// Save filament to local storage
+  Future<void> _saveFilamentLocally(Filament filament) async {
+    final prefs = await SharedPreferences.getInstance();
+    final filaments = await _getLocalFilaments();
+    filaments.add(filament);
+    
+    final filamentsJson = filaments.map((f) => f.toJson()).toList();
+    await prefs.setString(_localStorageKey, jsonEncode(filamentsJson));
+  }
+
+  /// Get all filaments from local storage
+  Future<List<Filament>> _getLocalFilaments() async {
+    final prefs = await SharedPreferences.getInstance();
+    final filamentsString = prefs.getString(_localStorageKey);
+    
+    if (filamentsString == null || filamentsString.isEmpty) {
+      return [];
+    }
+    
+    final List<dynamic> filamentsJson = jsonDecode(filamentsString);
+    final filaments = filamentsJson.map((json) => Filament.fromJson(json)).toList();
+    
+    // Sort by createdAt descending
+    filaments.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return filaments;
+  }
+
+  /// Update filament in local storage
+  Future<void> _updateFilamentLocally(String filamentId, Map<String, dynamic> updates) async {
+    final prefs = await SharedPreferences.getInstance();
+    final filaments = await _getLocalFilaments();
+    
+    final index = filaments.indexWhere((f) => f.id == filamentId);
+    if (index == -1) {
+      throw Exception('Filament not found');
+    }
+    
+    // Create updated filament
+    final oldFilament = filaments[index];
+    final updatedFilament = Filament(
+      id: oldFilament.id,
+      userId: oldFilament.userId,
+      type: updates['type'] ?? oldFilament.type,
+      color: updates['color'] ?? oldFilament.color,
+      count: updates['count'] ?? oldFilament.count,
+      brand: updates['brand'] ?? oldFilament.brand,
+      productName: updates['productName'] ?? oldFilament.productName,
+      weight: updates['weight'] ?? oldFilament.weight,
+      diameter: updates['diameter'] ?? oldFilament.diameter,
+      quantity: updates['quantity'] ?? oldFilament.quantity,
+      emptySpoolWeight: updates['emptySpoolWeight'] ?? oldFilament.emptySpoolWeight,
+      cost: updates['cost'] ?? oldFilament.cost,
+      storageLocation: updates['storageLocation'] ?? oldFilament.storageLocation,
+      notes: updates['notes'] ?? oldFilament.notes,
+      density: updates['density'] ?? oldFilament.density,
+      spoolType: updates['spoolType'] ?? oldFilament.spoolType,
+      extruderTemp: updates['extruderTemp'] ?? oldFilament.extruderTemp,
+      extruderTempRange: updates['extruderTempRange'] ?? oldFilament.extruderTempRange,
+      bedTemp: updates['bedTemp'] ?? oldFilament.bedTemp,
+      bedTempRange: updates['bedTempRange'] ?? oldFilament.bedTempRange,
+      finish: updates['finish'] ?? oldFilament.finish,
+      pattern: updates['pattern'] ?? oldFilament.pattern,
+      isTranslucent: updates['isTranslucent'] ?? oldFilament.isTranslucent,
+      isGlowInDark: updates['isGlowInDark'] ?? oldFilament.isGlowInDark,
+      createdAt: oldFilament.createdAt,
+      updatedAt: DateTime.now(),
+    );
+    
+    filaments[index] = updatedFilament;
+    
+    final filamentsJson = filaments.map((f) => f.toJson()).toList();
+    await prefs.setString(_localStorageKey, jsonEncode(filamentsJson));
+  }
+
+  /// Delete filament from local storage
+  Future<void> _deleteFilamentLocally(String filamentId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final filaments = await _getLocalFilaments();
+    
+    filaments.removeWhere((f) => f.id == filamentId);
+    
+    final filamentsJson = filaments.map((f) => f.toJson()).toList();
+    await prefs.setString(_localStorageKey, jsonEncode(filamentsJson));
   }
 }

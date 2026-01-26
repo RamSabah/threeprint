@@ -14,27 +14,38 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
   final FilamentService _filamentService = FilamentService();
   final AuthService _authService = AuthService();
+  late Future<List<Filament>> _filamentsFuture;
+  
+  @override
+  bool get wantKeepAlive => false; // Don't keep the state alive
+  
+  @override
+  void initState() {
+    super.initState();
+    _loadFilaments();
+  }
+  
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload when the widget is rebuilt (e.g., when navigating back)
+    _loadFilaments();
+  }
+  
+  void _loadFilaments() {
+    setState(() {
+      _filamentsFuture = _filamentService.getUserFilaments();
+    });
+  }
   
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return Scaffold(
-      body: StreamBuilder<User?>(
-        stream: _authService.authStateChanges,
-        builder: (context, authSnapshot) {
-          if (authSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          
-          if (!authSnapshot.hasData) {
-            return _buildWelcomeScreen();
-          }
-          
-          return _buildFilamentsView();
-        },
-      ),
+      body: _buildFilamentsView(),
     );
   }
 
@@ -65,8 +76,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFilamentsView() {
-    return StreamBuilder<List<Filament>>(
-      stream: _filamentService.getUserFilamentsStream(),
+    return FutureBuilder<List<Filament>>(
+      future: _filamentsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -130,13 +141,14 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const AddFilamentPage(),
                 ),
               );
+              _loadFilaments();
             },
             icon: const Icon(Icons.add),
             label: const Text('Custom'),

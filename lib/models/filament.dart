@@ -193,6 +193,69 @@ class Filament {
     return 'Filament(id: $id, userId: $userId, type: $type, color: $color, count: $count, brand: $brand, weight: ${weight}g, diameter: ${diameter}mm, quantity: $quantity, emptySpoolWeight: ${emptySpoolWeight}g, cost: $cost, storageLocation: $storageLocation, notes: $notes)';
   }
 
+  // JSON serialization for local storage
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'type': type,
+      'color': color,
+      'count': count,
+      'brand': brand,
+      'productName': productName,
+      'weight': weight,
+      'diameter': diameter,
+      'quantity': quantity,
+      'emptySpoolWeight': emptySpoolWeight,
+      'cost': cost,
+      'storageLocation': storageLocation,
+      'notes': notes,
+      'density': density,
+      'spoolType': spoolType,
+      'extruderTemp': extruderTemp,
+      'extruderTempRange': extruderTempRange,
+      'bedTemp': bedTemp,
+      'bedTempRange': bedTempRange,
+      'finish': finish,
+      'pattern': pattern,
+      'isTranslucent': isTranslucent,
+      'isGlowInDark': isGlowInDark,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  factory Filament.fromJson(Map<String, dynamic> json) {
+    return Filament(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      type: json['type'] as String,
+      color: json['color'] as String,
+      count: json['count'] as int,
+      brand: json['brand'] as String,
+      productName: json['productName'] as String?,
+      weight: (json['weight'] as num).toDouble(),
+      diameter: (json['diameter'] as num).toDouble(),
+      quantity: json['quantity'] as int,
+      emptySpoolWeight: (json['emptySpoolWeight'] as num?)?.toDouble(),
+      cost: (json['cost'] as num?)?.toDouble(),
+      storageLocation: json['storageLocation'] as String?,
+      notes: json['notes'] as String?,
+      density: (json['density'] as num?)?.toDouble(),
+      spoolType: json['spoolType'] as String?,
+      extruderTemp: json['extruderTemp'] as int?,
+      extruderTempRange: (json['extruderTempRange'] as List?)?.cast<int>(),
+      bedTemp: json['bedTemp'] as int?,
+      bedTempRange: (json['bedTempRange'] as List?)?.cast<int>(),
+      finish: json['finish'] as String?,
+      pattern: json['pattern'] as String?,
+      isTranslucent: json['isTranslucent'] as bool?,
+      isGlowInDark: json['isGlowInDark'] as bool?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

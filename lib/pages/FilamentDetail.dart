@@ -305,11 +305,11 @@ class _FilamentDetailState extends State<FilamentDetail> {
                 )
               : IconButton(
                   icon: Icon(
-                    _isSaved ? Icons.bookmark : Icons.bookmark_border,
-                    color: _isSaved ? Colors.amber : null,
+                    _isSaved ? Icons.download_done : Icons.download,
+                    color: _isSaved ? Colors.green : null,
                   ),
                   onPressed: _isSaved ? null : _saveToLibrary,
-                  tooltip: _isSaved ? 'Already in library' : 'Save to library',
+                  tooltip: _isSaved ? 'Already in library' : 'Download to library',
                 ),
         ],
       ),
