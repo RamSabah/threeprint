@@ -891,63 +891,66 @@ class _SearchPageState extends State<SearchPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Dropdowns row
-                                  Row(
-                                    children: [
-                                      // View mode dropdown
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(color: Colors.grey.shade300),
-                                        ),
-                                        child: DropdownButton<String>(
-                                          value: _viewMode,
-                                          underline: const SizedBox(),
-                                          icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
-                                          style: TextStyle(
-                                            color: Colors.grey.shade700,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
+                                  // Dropdowns row - make it scrollable
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        // View mode dropdown
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: Colors.grey.shade300),
                                           ),
-                                          onChanged: (String? newValue) {
-                                            if (newValue != null) {
-                                              setState(() {
-                                                _viewMode = newValue;
-                                                if (newValue == 'manufacturers') {
-                                                  // Reset to manufacturer view
-                                                  _selectedManufacturer = null;
-                                                  _searchResults = [];
-                                                  _showingAllManufacturers = false;
-                                                  _sortByBrightness = false;
-                                                } else if (newValue == 'colors') {
-                                                  _selectedManufacturer = null;
-                                                  _performSearch(reset: true, showAll: true);
-                                                }
-                                              });
-                                            }
-                                          },
-                                          items: const [
-                                            DropdownMenuItem(
-                                              value: 'manufacturers',
-                                              child: Text('Manufacturers'),
-                                            ),
-                                            DropdownMenuItem(
-                                              value: 'colors',
-                                              child: Text('All Colors'),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      // Show selected manufacturer
-                                      if (_selectedManufacturer != null && !_showingAllManufacturers)
-                                        Expanded(
-                                          child: Text(
-                                            _selectedManufacturer!,
+                                          child: DropdownButton<String>(
+                                            value: _viewMode,
+                                            underline: const SizedBox(),
+                                            icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
                                             style: TextStyle(
-                                              color: Theme.of(context).colorScheme.secondary,
+                                              color: Colors.grey.shade700,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            onChanged: (String? newValue) {
+                                              if (newValue != null) {
+                                                setState(() {
+                                                  _viewMode = newValue;
+                                                  if (newValue == 'manufacturers') {
+                                                    // Reset to manufacturer view
+                                                    _selectedManufacturer = null;
+                                                    _searchResults = [];
+                                                    _showingAllManufacturers = false;
+                                                    _sortByBrightness = false;
+                                                  } else if (newValue == 'colors') {
+                                                    _selectedManufacturer = null;
+                                                    _performSearch(reset: true, showAll: true);
+                                                  }
+                                                });
+                                              }
+                                            },
+                                            items: const [
+                                              DropdownMenuItem(
+                                                value: 'manufacturers',
+                                                child: Text('Manufacturers'),
+                                              ),
+                                              DropdownMenuItem(
+                                                value: 'colors',
+                                                child: Text('All Colors'),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        // Show selected manufacturer
+                                        if (_selectedManufacturer != null && !_showingAllManufacturers)
+                                          Container(
+                                            constraints: const BoxConstraints(maxWidth: 200),
+                                            child: Text(
+                                              _selectedManufacturer!,
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.secondary,
                                               fontSize: 14,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -1026,8 +1029,7 @@ class _SearchPageState extends State<SearchPage> {
                                             ),
                                           ),
                                         ),
-                                      // Sort button
-                                      const Spacer(),
+                                      const SizedBox(width: 12),
                                       // Card/Color view toggle button
                                       Material(
                                         color: Colors.transparent,
@@ -1045,7 +1047,7 @@ class _SearchPageState extends State<SearchPage> {
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Icon(
-                                                  _showCardView ? Icons.grid_view : Icons.palette,
+                                                  _showCardView ? Icons.view_list : Icons.grid_view,
                                                   size: 18,
                                                   color: Colors.grey.shade600,
                                                 ),
@@ -1093,6 +1095,7 @@ class _SearchPageState extends State<SearchPage> {
                                         ),
                                       ),
                                     ],
+                                  ),
                                   ),
                                 ],
                               ),
