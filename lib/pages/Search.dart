@@ -29,6 +29,7 @@ class _SearchPageState extends State<SearchPage> {
   bool _sortByBrightness = false;
   String _viewMode = 'manufacturers'; // 'manufacturers' or 'colors'
   String? _selectedColorFilter; // Filter by color family
+  bool _showCardView = false; // Toggle between color-only and card view
   static const int _pageSize = 20;
   
   @override
@@ -1027,6 +1028,34 @@ class _SearchPageState extends State<SearchPage> {
                                         ),
                                       // Sort button
                                       const Spacer(),
+                                      // Card/Color view toggle button
+                                      Material(
+                                        color: Colors.transparent,
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              _showCardView = !_showCardView;
+                                            });
+                                          },
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  _showCardView ? Icons.grid_view : Icons.palette,
+                                                  size: 18,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      // Sort button
                                       Material(
                                         color: _sortByBrightness 
                                             ? Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1)
@@ -1073,18 +1102,23 @@ class _SearchPageState extends State<SearchPage> {
                             child: LayoutBuilder(
                               builder: (context, constraints) {
                                 final screenWidth = constraints.maxWidth;
-                                final crossAxisCount = screenWidth > 900 ? 6 : (screenWidth > 600 ? 5 : 4);
+                                // Adjust columns based on view mode
+                                final crossAxisCount = _showCardView 
+                                    ? (screenWidth > 900 ? 4 : (screenWidth > 600 ? 3 : 2))
+                                    : (screenWidth > 900 ? 6 : (screenWidth > 600 ? 5 : 4));
+                                final childAspectRatio = _showCardView ? 1.05 : 1.0;
+                                final spacing = _showCardView ? 12.0 : 4.0;
                                 
                                 return GridView.builder(
                                   controller: _scrollController,
                                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: crossAxisCount,
-                                    childAspectRatio: 1.0,
-                                    crossAxisSpacing: 4,
-                                    mainAxisSpacing: 4,
+                                    childAspectRatio: childAspectRatio,
+                                    crossAxisSpacing: spacing,
+                                    mainAxisSpacing: spacing,
                                   ),
                                   itemCount: _getFilteredResults().length + (_hasMore && _selectedColorFilter == null ? 1 : 0),
-                                  padding: const EdgeInsets.all(8),
+                                  padding: EdgeInsets.all(_showCardView ? 16 : 8),
                                   itemBuilder: (context, index) {
                                 final filteredResults = _getFilteredResults();
                                 if (index >= filteredResults.length) {
@@ -1110,17 +1144,19 @@ class _SearchPageState extends State<SearchPage> {
                               );
                             },
                             borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(2),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  // Color indicator only
-                                  _buildColorIndicator(filament),
-                                ],
-                              ),
-                            ),
+                            child: _showCardView 
+                                ? _buildFilamentCard(filament)
+                                : Padding(
+                                    padding: const EdgeInsets.all(2),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        // Color indicator only
+                                        _buildColorIndicator(filament),
+                                      ],
+                                    ),
+                                  ),
                           );
                         },
                       );
@@ -1132,5 +1168,144 @@ class _SearchPageState extends State<SearchPage> {
             ],
           ),
         );
+  }
+  
+  Widget _buildFilamentCard(SpoolmanFilament filament) {
+    Color cardColor = Colors.grey;
+    try {
+      if (filament.colorHex != null && filament.colorHex!.isNotEmpty) {
+        String hexColor = filament.colorHex!.replaceFirst('#', '');
+        if (hexColor.length == 6) {
+          cardColor = Color(int.parse('FF$hexColor', radix: 16));
+        }
+      }
+    } catch (e) {
+      cardColor = Colors.grey;
+    }
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Color header
+          Expanded(
+            flex: 3,
+            child: Container(
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+              ),
+            ),
+          ),
+          // Info section
+          Expanded(
+            flex: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Brand and material
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        filament.manufacturer ?? 'Unknown',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${filament.material ?? 'N/A'}, ${filament.name ?? ''}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                  // Specs rows
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          if (filament.diameter != null) ...[
+                            Icon(Icons.straighten, size: 10, color: Colors.grey[600]),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${filament.diameter}mm',
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          if (filament.weight != null) ...[
+                            Icon(Icons.scale, size: 10, color: Colors.grey[600]),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${filament.weight}g',
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 3),
+                      // Temperature row
+                      Row(
+                        children: [
+                          if (filament.extruderTemp != null) ...[
+                            Icon(Icons.thermostat, size: 10, color: Colors.grey[600]),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${filament.extruderTemp}°C',
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                          ],
+                          if (filament.bedTemp != null) ...[
+                            Icon(Icons.layers, size: 10, color: Colors.grey[600]),
+                            const SizedBox(width: 2),
+                            Text(
+                              '${filament.bedTemp}°C',
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
