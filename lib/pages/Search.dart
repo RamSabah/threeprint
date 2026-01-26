@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/spoolman_service.dart';
+import '../services/filament_service.dart';
 import 'FilamentDetail.dart';
 
 class SearchPage extends StatefulWidget {
@@ -11,6 +12,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final SpoolmanService _spoolmanService = SpoolmanService();
+  final FilamentService _filamentService = FilamentService();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
@@ -1191,22 +1193,24 @@ class _SearchPageState extends State<SearchPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          // Color header
-          Expanded(
-            flex: 3,
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Color header
+              Expanded(
+                flex: 3,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
           // Info section
           Expanded(
             flex: 4,
@@ -1307,8 +1311,102 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
           ),
-        ],
-      ),
+          ],
+        ),
+        // Plus icon button in bottom right corner
+        Positioned(
+          bottom: 4,
+          right: 4,
+          child: FutureBuilder<bool>(
+            future: _filamentService.isSpoolmanFilamentSaved(filament.id.toString()),
+            builder: (context, snapshot) {
+              final isSaved = snapshot.data ?? false;
+              return Material(
+                color: isSaved ? Colors.green : Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(20),
+                child: InkWell(
+                  onTap: isSaved ? null : () => _saveFilamentToLibrary(filament),
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    child: Icon(
+                      Icons.add,
+                      size: 18,
+                      color: isSaved ? Colors.white : Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    ),
     );
+  }
+
+  Future<void> _saveFilamentToLibrary(SpoolmanFilament filament) async {
+    // Check if already saved
+    final isSaved = await _filamentService.isSpoolmanFilamentSaved(filament.id.toString());
+    if (isSaved) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Filament already in your library!'),
+            backgroundColor: Colors.orange,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      await _filamentService.saveSpoolmanFilament(
+        spoolmanId: filament.id.toString(),
+        displayName: filament.displayName,
+        manufacturer: filament.manufacturer,
+        productName: filament.name,
+        material: filament.material,
+        diameter: filament.diameter,
+        weight: filament.weight,
+        density: filament.density,
+        spoolWeight: filament.spoolWeight,
+        spoolType: filament.spoolType,
+        colorHex: filament.colorHex,
+        colorHexes: filament.colorHexes,
+        extruderTemp: filament.extruderTemp,
+        extruderTempRange: filament.extruderTempRange,
+        bedTemp: filament.bedTemp,
+        bedTempRange: filament.bedTempRange,
+        finish: filament.finish,
+        pattern: filament.pattern,
+        isTranslucent: filament.translucent,
+        isGlowInDark: filament.glow,
+        quantity: 1,
+        notes: 'Saved from Spoolman search',
+      );
+
+      if (mounted) {
+        setState(() {}); // Refresh to update the icon color
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Filament saved to your library!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save filament: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
