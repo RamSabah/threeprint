@@ -925,6 +925,19 @@ class _SearchPageState extends State<SearchPage> {
                                         ),
                                       ),
                                       const SizedBox(width: 12),
+                                      // Show selected manufacturer
+                                      if (_selectedManufacturer != null && !_showingAllManufacturers)
+                                        Expanded(
+                                          child: Text(
+                                            _selectedManufacturer!,
+                                            style: TextStyle(
+                                              color: Theme.of(context).colorScheme.secondary,
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                       // Color filter button (only show when viewing all colors)
                                       if (_showingAllManufacturers)
                                         InkWell(
