@@ -143,10 +143,13 @@ class _SearchPageState extends State<SearchPage> {
     }
 
     try {
+      // Use larger page size for "All Colors" view to fill tablet screens
+      final pageSize = showAll ? 60 : _pageSize;
+      
       final result = await _spoolmanService.searchFilaments(
         query: (_searchQuery.isNotEmpty && !showAll) ? _searchQuery : null,
         manufacturer: showAll ? null : _selectedManufacturer,
-        limit: _pageSize,
+        limit: pageSize,
         offset: reset ? 0 : _searchResults.length,
       );
 
@@ -444,15 +447,20 @@ class _SearchPageState extends State<SearchPage> {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 2.5,
-                  ),
-                  itemCount: colors.length,
-                  itemBuilder: (context, index) {
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final screenWidth = constraints.maxWidth;
+                    final crossAxisCount = screenWidth > 600 ? 4 : 3;
+                    
+                    return GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        childAspectRatio: 2.5,
+                      ),
+                      itemCount: colors.length,
+                      itemBuilder: (context, index) {
                     final colorItem = colors[index];
                     final name = colorItem['name'] as String;
                     final isSelected = (_selectedColorFilter ?? 'All') == name;
@@ -510,8 +518,9 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     );
                   },
-                ),
-              ),
+                );
+              }),
+            ),
             ],
           ),
         ),
@@ -765,16 +774,21 @@ class _SearchPageState extends State<SearchPage> {
                           ),
                           // Manufacturer grid
                           Expanded(
-                            child: GridView.builder(
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                childAspectRatio: 1.5,
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                              ),
-                              itemCount: _manufacturers.length,
-                              padding: const EdgeInsets.all(16),
-                              itemBuilder: (context, index) {
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                final screenWidth = constraints.maxWidth;
+                                final crossAxisCount = screenWidth > 900 ? 4 : (screenWidth > 600 ? 3 : 2);
+                                
+                                return GridView.builder(
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: crossAxisCount,
+                                    childAspectRatio: 1.5,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                  ),
+                                  itemCount: _manufacturers.length,
+                                  padding: const EdgeInsets.all(16),
+                                  itemBuilder: (context, index) {
                                 final manufacturer = _manufacturers[index];
                                 final filamentCount = _manufacturerCounts[manufacturer] ?? 0;
                                 
@@ -824,8 +838,9 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                 );
                               },
-                            ),
-                          ),
+                            );
+                          }),
+                        ),
                         ],
                       )
                     : _searchResults.isEmpty
@@ -1055,17 +1070,22 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           // Results list
                           Expanded(
-                            child: GridView.builder(
-                              controller: _scrollController,
-                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                childAspectRatio: 1.0,
-                                crossAxisSpacing: 4,
-                                mainAxisSpacing: 4,
-                              ),
-                              itemCount: _getFilteredResults().length + (_hasMore && _selectedColorFilter == null ? 1 : 0),
-                              padding: const EdgeInsets.all(8),
-                              itemBuilder: (context, index) {
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                final screenWidth = constraints.maxWidth;
+                                final crossAxisCount = screenWidth > 900 ? 6 : (screenWidth > 600 ? 5 : 4);
+                                
+                                return GridView.builder(
+                                  controller: _scrollController,
+                                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: crossAxisCount,
+                                    childAspectRatio: 1.0,
+                                    crossAxisSpacing: 4,
+                                    mainAxisSpacing: 4,
+                                  ),
+                                  itemCount: _getFilteredResults().length + (_hasMore && _selectedColorFilter == null ? 1 : 0),
+                                  padding: const EdgeInsets.all(8),
+                                  itemBuilder: (context, index) {
                                 final filteredResults = _getFilteredResults();
                                 if (index >= filteredResults.length) {
                                   // Loading indicator at the bottom
@@ -1103,8 +1123,9 @@ class _SearchPageState extends State<SearchPage> {
                             ),
                           );
                         },
-                      ),
-                    ),
+                      );
+                    }),
+                  ),
                   ],
                 ),
               ),

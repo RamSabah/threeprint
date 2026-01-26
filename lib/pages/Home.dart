@@ -159,44 +159,60 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   }
 
   Widget _buildFilamentsList(List<Filament> filaments) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: _buildStatsRow(filaments),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 1.05,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = constraints.maxWidth;
+        final isTablet = screenWidth > 600;
+        final crossAxisCount = isTablet ? (screenWidth > 900 ? 4 : 3) : 2;
+        final horizontalPadding = isTablet ? 32.0 : 16.0;
+        final maxWidth = isTablet ? 1200.0 : double.infinity;
+        
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.all(horizontalPadding),
+                    child: _buildStatsRow(filaments, isTablet),
+                  ),
+                ),
+                SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                  sliver: SliverGrid(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      childAspectRatio: 1.05,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return _buildFilamentCard(filaments[index]);
+                      },
+                      childCount: filaments.length,
+                    ),
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 80), // Space for FAB
+                ),
+              ],
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return _buildFilamentCard(filaments[index]);
-              },
-              childCount: filaments.length,
-            ),
           ),
-        ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 80), // Space for FAB
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildStatsRow(List<Filament> filaments) {
+  Widget _buildStatsRow(List<Filament> filaments, bool isTablet) {
     final totalCount = filaments.fold<int>(0, (sum, f) => sum + f.count);
     final uniqueTypes = filaments.map((f) => f.type).toSet().length;
     final uniqueBrands = filaments.map((f) => f.brand).toSet().length;
 
     return Row(
+      mainAxisAlignment: isTablet ? MainAxisAlignment.center : MainAxisAlignment.start,
       children: [
         Expanded(
           child: _buildStatCard('Total Units', totalCount.toString(), Icons.inventory),

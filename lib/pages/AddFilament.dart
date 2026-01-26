@@ -384,18 +384,28 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          // Hide keyboard when tapping outside input fields
-          FocusScope.of(context).unfocus();
-        },
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.maxWidth;
+          final isTablet = screenWidth > 600;
+          final maxWidth = isTablet ? 800.0 : double.infinity;
+          final horizontalPadding = isTablet ? 32.0 : 16.0;
+          
+          return GestureDetector(
+            onTap: () {
+              // Hide keyboard when tapping outside input fields
+              FocusScope.of(context).unfocus();
+            },
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.all(horizontalPadding),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
               // Header
               Stack(
                 children: [
@@ -1783,10 +1793,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 ],
               ),
 
-            ],
-          ),
-        ),
-      ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
