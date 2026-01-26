@@ -3,7 +3,6 @@ import '../pages/Home.dart';
 import '../pages/AddFilament.dart';
 import '../pages/Search.dart';
 import '../pages/settings_page.dart';
-import '../widgets/Drawer.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -36,14 +35,7 @@ class _MainNavigationState extends State<MainNavigation> {
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Colors.white,
           title: const Text('ThreePrint'),
-          leading: Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
-          ),
         ),
-        drawer: const AppDrawer(),
         body: SafeArea(
           bottom: false, // Let bottom navigation handle its own safe area
           child: _pages[_selectedIndex],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../pages/account_page.dart';
 
 
 class SettingsPage extends StatelessWidget {
@@ -28,6 +29,30 @@ class SettingsPage extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 32),
+
+          // Account Section
+          const Text(
+            'Account',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Login / Register'),
+              subtitle: const Text('Manage your account'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AccountPage()),
+                );
+              },
+            ),
+          ),
+          
           const SizedBox(height: 32),
 
           // Printer Integration Section

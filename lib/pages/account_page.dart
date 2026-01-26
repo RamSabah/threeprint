@@ -12,10 +12,12 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _authService = AuthService();
   User? _currentUser;
   bool _isLoading = false;
+  bool _isRegisterMode = false;
 
   @override
   void initState() {
@@ -133,6 +135,21 @@ class _AccountPageState extends State<AccountPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Account'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text(
+              'Done',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -208,11 +225,34 @@ class _AccountPageState extends State<AccountPage> {
             children: [
               const Icon(Icons.login, size: 100),
               const SizedBox(height: 20),
-              const Text(
-                'Login to your account',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                _isRegisterMode ? 'Create your account' : 'Login to your account',
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 30),
+              if (_isRegisterMode)
+                Column(
+                  children: [
+                    TextFormField(
+                      controller: _usernameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Username',
+                        prefixIcon: Icon(Icons.person),
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a username';
+                        }
+                        if (value.length < 3) {
+                          return 'Username must be at least 3 characters';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -254,19 +294,26 @@ class _AccountPageState extends State<AccountPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
+                  onPressed: _isLoading ? null : (_isRegisterMode ? _register : _login),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 15),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Colors.white,
                   ),
                   child: _isLoading 
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Login'),
+                    : Text(_isRegisterMode ? 'Register' : 'Login'),
                 ),
               ),
               const SizedBox(height: 15),
               TextButton(
-                onPressed: _isLoading ? null : _register,
-                child: const Text('or Register'),
+                onPressed: _isLoading ? null : () {
+                  setState(() {
+                    _isRegisterMode = !_isRegisterMode;
+                    _formKey.currentState?.reset();
+                  });
+                },
+                child: Text(_isRegisterMode ? 'Already have an account? Login' : 'or Register'),
               ),
             ],
           ),
@@ -279,6 +326,7 @@ class _AccountPageState extends State<AccountPage> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _usernameController.dispose();
     super.dispose();
   }
 }
