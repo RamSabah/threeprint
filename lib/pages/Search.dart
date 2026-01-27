@@ -1322,7 +1322,7 @@ class _SearchPageState extends State<SearchPage> {
             builder: (context, snapshot) {
               final isSaved = snapshot.data ?? false;
               return Material(
-                color: isSaved ? Colors.green : Colors.white.withOpacity(0.9),
+                color: isSaved ? Colors.green : Colors.grey[300],
                 borderRadius: BorderRadius.circular(20),
                 child: InkWell(
                   onTap: isSaved ? null : () => _saveFilamentToLibrary(filament),
@@ -1332,7 +1332,7 @@ class _SearchPageState extends State<SearchPage> {
                     child: Icon(
                       Icons.add,
                       size: 18,
-                      color: isSaved ? Colors.white : Theme.of(context).colorScheme.primary,
+                      color: isSaved ? Colors.white : Colors.black,
                     ),
                   ),
                 ),
