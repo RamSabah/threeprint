@@ -133,7 +133,8 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         title: const Text('Account'),
         actions: [
           TextButton(
@@ -185,7 +186,12 @@ class _AccountPageState extends State<AccountPage> {
           const SizedBox(height: 10),
           Text(
             _currentUser?.email ?? 'No email',
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
+            style: TextStyle(
+              fontSize: 16, 
+              color: Theme.of(context).brightness == Brightness.dark 
+                  ? Colors.grey.shade400 
+                  : Colors.grey
+            ),
           ),
           const SizedBox(height: 10),
           if (_currentUser?.emailVerified == false)
@@ -227,7 +233,11 @@ class _AccountPageState extends State<AccountPage> {
               const SizedBox(height: 20),
               Text(
                 _isRegisterMode ? 'Create your account' : 'Login to your account',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 24, 
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                ),
               ),
               const SizedBox(height: 30),
               if (_isRegisterMode)
@@ -313,7 +323,12 @@ class _AccountPageState extends State<AccountPage> {
                     _formKey.currentState?.reset();
                   });
                 },
-                child: Text(_isRegisterMode ? 'Already have an account? Login' : 'or Register'),
+                child: Text(
+                  _isRegisterMode ? 'Already have an account? Login' : 'or Register',
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
+                ),
               ),
             ],
           ),

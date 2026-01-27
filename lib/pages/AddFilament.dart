@@ -477,12 +477,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
+                          Text(
                             'Basic Information',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
                             ),
                           ),
                         ],
@@ -490,23 +490,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       const SizedBox(height: 20),
                       
                       // Filament Type Dropdown
-                      const Text(
+                      Text(
                         'Filament Type',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
                         value: _selectedFilamentType,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -532,23 +532,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       const SizedBox(height: 16),
                       
                       // Brand Input Field
-                      const Text(
+                      Text(
                         'Brand',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _brandController,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -564,23 +564,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       const SizedBox(height: 16),
                       
                       // Product Name Input Field
-                      const Text(
+                      Text(
                         'Product Name (Optional)',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _productNameController,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -626,12 +626,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
+                          Text(
                             'Color',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
                             ),
                           ),
                         ],
@@ -643,7 +643,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
+                          color: Theme.of(context).brightness == Brightness.dark 
+                              ? Theme.of(context).colorScheme.surfaceContainerHighest 
+                              : Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -657,15 +659,18 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                     'Selected Color',
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey.shade600,
+                                      color: Theme.of(context).brightness == Brightness.dark 
+                                          ? Colors.grey.shade400 
+                                          : Colors.grey.shade600,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     _selectedColorName,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -673,7 +678,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                     ColorPickerUtils.colorToHex(_selectedColor),
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.grey.shade600,
+                                      color: Theme.of(context).brightness == Brightness.dark 
+                                          ? Colors.grey.shade400 
+                                          : Colors.grey.shade600,
                                       fontFamily: 'monospace',
                                     ),
                                   ),
@@ -689,7 +696,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                   color: _selectedColor,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: Colors.grey.shade300,
+                                    color: Theme.of(context).brightness == Brightness.dark 
+                                        ? Colors.grey.shade700 
+                                        : Colors.grey.shade300,
                                     width: 2,
                                   ),
                                   boxShadow: [
@@ -744,12 +753,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
+                          Text(
                             'Inventory',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
                             ),
                           ),
                         ],
@@ -757,9 +766,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       const SizedBox(height: 20),
                       
                       // Count Input
-                      const Text(
+                      Text(
                         'Count',
-                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                       ),
                       const SizedBox(height: 8),
                       TextFormField(
@@ -767,14 +776,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors.grey.shade50,
+                          fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: BorderSide.none,
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                            borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -821,12 +830,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
+                          Text(
                             'Specifications',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
                             ),
                           ),
                         ],
@@ -842,9 +851,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Weight (g)',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
@@ -852,14 +861,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           keyboardType: TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                              borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -881,9 +890,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Diameter (mm)',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
@@ -891,14 +900,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           keyboardType: TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                              borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -920,9 +929,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Quantity',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
@@ -930,14 +939,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                              borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -964,9 +973,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Density (g/cm³)',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
@@ -974,14 +983,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           keyboardType: TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                              borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -1002,9 +1011,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Spool Weight (g)',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
@@ -1012,14 +1021,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           keyboardType: TextInputType.numberWithOptions(decimal: true),
                           decoration: InputDecoration(
                             filled: true,
-                            fillColor: Colors.grey.shade50,
+                            fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                              borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -1038,23 +1047,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               const SizedBox(height: 16),
               
               // Spool Type
-              const Text(
+              Text(
                 'Spool Type',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedSpoolType,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                    borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1110,12 +1119,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
+                          Text(
                             'Temperature Settings',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
                             ),
                           ),
                         ],
@@ -1129,9 +1138,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Extruder Temp (°C)',
-                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
@@ -1139,14 +1148,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     filled: true,
-                                    fillColor: Colors.grey.shade50,
+                                    fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide.none,
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                      borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -1157,7 +1166,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                const Text(
+                                Text(
                                   'Or Temperature Range',
                                   style: TextStyle(fontSize: 11, color: Colors.grey),
                                 ),
@@ -1170,14 +1179,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
                                           filled: true,
-                                          fillColor: Colors.grey.shade50,
+                                          fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
                                             borderSide: BorderSide.none,
                                           ),
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                            borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                                           ),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -1198,14 +1207,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
                                           filled: true,
-                                          fillColor: Colors.grey.shade50,
+                                          fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
                                             borderSide: BorderSide.none,
                                           ),
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                            borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                                           ),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -1229,9 +1238,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Bed Temp (°C)',
-                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
@@ -1239,14 +1248,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     filled: true,
-                                    fillColor: Colors.grey.shade50,
+                                    fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide.none,
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                      borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -1257,7 +1266,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                const Text(
+                                Text(
                                   'Or Temperature Range',
                                   style: TextStyle(fontSize: 11, color: Colors.grey),
                                 ),
@@ -1270,14 +1279,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
                                           filled: true,
-                                          fillColor: Colors.grey.shade50,
+                                          fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
                                             borderSide: BorderSide.none,
                                           ),
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                            borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                                           ),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -1298,14 +1307,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                         keyboardType: TextInputType.number,
                                         decoration: InputDecoration(
                                           filled: true,
-                                          fillColor: Colors.grey.shade50,
+                                          fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                                           border: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
                                             borderSide: BorderSide.none,
                                           ),
                                           enabledBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
-                                            borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                            borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                                           ),
                                           focusedBorder: OutlineInputBorder(
                                             borderRadius: BorderRadius.circular(12),
@@ -1335,7 +1344,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 elevation: 0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(color: Colors.grey.shade200, width: 1),
+                  side: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -1357,12 +1366,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
+                          Text(
                             'Special Properties',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
                             ),
                           ),
                         ],
@@ -1376,23 +1385,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Finish',
-                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _finishController,
                                   decoration: InputDecoration(
                                     filled: true,
-                                    fillColor: Colors.grey.shade50,
+                                    fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide.none,
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                      borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -1413,23 +1422,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'Pattern',
-                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black87),
+                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                                 ),
                                 const SizedBox(height: 8),
                                 TextFormField(
                                   controller: _patternController,
                                   decoration: InputDecoration(
                                     filled: true,
-                                    fillColor: Colors.grey.shade50,
+                                    fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                       borderSide: BorderSide.none,
                                     ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                                      borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                                     ),
                                     focusedBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -1450,18 +1459,22 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       // Translucent Toggle
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
+                          color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade200, width: 1),
+                          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                         ),
                         child: SwitchListTile(
                           title: Row(
                             children: [
-                              Icon(Icons.visibility, size: 20, color: Colors.grey.shade600),
+                              Icon(Icons.visibility, size: 20, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey.shade600),
                               const SizedBox(width: 8),
-                              const Text(
+                              Text(
                                 'Translucent',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                                ),
                               ),
                             ],
                           ),
@@ -1481,18 +1494,22 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       // Glow in Dark Toggle
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
+                          color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade200, width: 1),
+                          border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                         ),
                         child: SwitchListTile(
                           title: Row(
                             children: [
-                              Icon(Icons.light_mode, size: 20, color: Colors.grey.shade600),
+                              Icon(Icons.light_mode, size: 20, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey.shade600),
                               const SizedBox(width: 8),
-                              const Text(
+                              Text(
                                 'Glow in Dark',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).textTheme.bodyLarge?.color,
+                                ),
                               ),
                             ],
                           ),
@@ -1540,12 +1557,12 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
+                          Text(
                             'Optional Details',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
                             ),
                           ),
                         ],
@@ -1554,9 +1571,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                       const SizedBox(height: 20),
               
               // Empty Spool Weight
-              const Text(
+              Text(
                 'Empty Spool Weight (g)',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
               ),
               const SizedBox(height: 4),
               Text(
@@ -1569,14 +1586,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                    borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1591,9 +1608,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               const SizedBox(height: 16),
               
               // Cost
-              const Text(
+              Text(
                 'Cost',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -1601,14 +1618,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                    borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1624,23 +1641,23 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               const SizedBox(height: 16),
               
               // Storage Location
-              const Text(
+              Text(
                 'Storage Location',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
               ),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _storageLocationController,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                    borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1657,9 +1674,9 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
               const SizedBox(height: 20),
               
               // Notes
-              const Text(
+              Text(
                 'Notes',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
               ),
               const SizedBox(height: 8),
               TextFormField(
@@ -1668,14 +1685,14 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Colors.grey.shade50,
+                  fillColor: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.grey.shade50,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                    borderSide: BorderSide(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade200, width: 1),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1719,7 +1736,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           FocusScope.of(context).unfocus();
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text('All fields cleared'),
+                              content: Text('All fields cleared'),
                               duration: const Duration(seconds: 2),
                               backgroundColor: Colors.grey.shade700,
                             ),

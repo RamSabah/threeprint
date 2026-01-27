@@ -427,6 +427,9 @@ class _SearchPageState extends State<SearchPage> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
+        backgroundColor: Theme.of(context).brightness == Brightness.dark 
+            ? Theme.of(context).colorScheme.surface 
+            : Colors.white,
         child: Container(
           padding: const EdgeInsets.all(16),
           constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
@@ -437,9 +440,13 @@ class _SearchPageState extends State<SearchPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Select Color Filter',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 18, 
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.bodyLarge?.color,
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -475,10 +482,20 @@ class _SearchPageState extends State<SearchPage> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isSelected ? Colors.blue.shade50 : Colors.grey.shade100,
+                          color: isSelected 
+                              ? (Theme.of(context).brightness == Brightness.dark 
+                                  ? Theme.of(context).colorScheme.secondary.withOpacity(0.2) 
+                                  : Colors.blue.shade50)
+                              : (Theme.of(context).brightness == Brightness.dark 
+                                  ? Theme.of(context).colorScheme.surfaceContainerHighest 
+                                  : Colors.grey.shade100),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelected ? Colors.blue : Colors.grey.shade300,
+                            color: isSelected 
+                                ? Theme.of(context).colorScheme.secondary 
+                                : (Theme.of(context).brightness == Brightness.dark 
+                                    ? Colors.grey.shade700 
+                                    : Colors.grey.shade300),
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -512,6 +529,7 @@ class _SearchPageState extends State<SearchPage> {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: Theme.of(context).textTheme.bodyLarge?.color,
                                 ),
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -696,14 +714,21 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade200, width: 1),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.grey.shade700 
+                            : Colors.grey.shade200, 
+                        width: 1
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2),
                     ),
                     filled: true,
-                    fillColor: Colors.grey.shade50,
+                    fillColor: Theme.of(context).brightness == Brightness.dark 
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest 
+                        : Colors.grey.shade50,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                 ),
@@ -725,9 +750,16 @@ class _SearchPageState extends State<SearchPage> {
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade50,
+                              color: Theme.of(context).brightness == Brightness.dark 
+                                  ? Theme.of(context).colorScheme.surfaceContainerHighest 
+                                  : Colors.grey.shade50,
                               border: Border(
-                                bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                                bottom: BorderSide(
+                                  color: Theme.of(context).brightness == Brightness.dark 
+                                      ? Colors.grey.shade700 
+                                      : Colors.grey.shade200, 
+                                  width: 1
+                                ),
                               ),
                             ),
                             child: Row(
@@ -736,16 +768,28 @@ class _SearchPageState extends State<SearchPage> {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Theme.of(context).brightness == Brightness.dark 
+                                        ? Theme.of(context).colorScheme.surface 
+                                        : Colors.white,
                                     borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.grey.shade300),
+                                    border: Border.all(
+                                      color: Theme.of(context).brightness == Brightness.dark 
+                                          ? Colors.grey.shade700 
+                                          : Colors.grey.shade300
+                                    ),
                                   ),
                                   child: DropdownButton<String>(
                                     value: _viewMode,
                                     underline: const SizedBox(),
-                                    icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
+                                    icon: Icon(
+                                      Icons.arrow_drop_down, 
+                                      color: Theme.of(context).brightness == Brightness.dark 
+                                          ? Colors.grey.shade400 
+                                          : Colors.grey.shade700, 
+                                      size: 20
+                                    ),
                                     style: TextStyle(
-                                      color: Colors.grey.shade700,
+                                      color: Theme.of(context).textTheme.bodyLarge?.color,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -885,9 +929,16 @@ class _SearchPageState extends State<SearchPage> {
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade50,
+                                color: Theme.of(context).brightness == Brightness.dark 
+                                    ? Theme.of(context).colorScheme.surfaceContainerHighest 
+                                    : Colors.grey.shade50,
                                 border: Border(
-                                  bottom: BorderSide(color: Colors.grey.shade200, width: 1),
+                                  bottom: BorderSide(
+                                    color: Theme.of(context).brightness == Brightness.dark 
+                                        ? Colors.grey.shade700 
+                                        : Colors.grey.shade200, 
+                                    width: 1
+                                  ),
                                 ),
                               ),
                               child: Column(
@@ -966,9 +1017,15 @@ class _SearchPageState extends State<SearchPage> {
                                           child: Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                             decoration: BoxDecoration(
-                                              color: Colors.white,
+                                              color: Theme.of(context).brightness == Brightness.dark 
+                                                  ? Theme.of(context).colorScheme.surface 
+                                                  : Colors.white,
                                               borderRadius: BorderRadius.circular(8),
-                                              border: Border.all(color: Colors.grey.shade300),
+                                              border: Border.all(
+                                                color: Theme.of(context).brightness == Brightness.dark 
+                                                    ? Colors.grey.shade700 
+                                                    : Colors.grey.shade300
+                                              ),
                                             ),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
@@ -976,13 +1033,19 @@ class _SearchPageState extends State<SearchPage> {
                                                 Text(
                                                   _selectedColorFilter ?? 'All Colors',
                                                   style: TextStyle(
-                                                    color: Colors.grey.shade700,
+                                                    color: Theme.of(context).textTheme.bodyLarge?.color,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
                                                 const SizedBox(width: 4),
-                                                Icon(Icons.arrow_drop_down, color: Colors.grey.shade700, size: 20),
+                                                Icon(
+                                                  Icons.arrow_drop_down, 
+                                                  color: Theme.of(context).brightness == Brightness.dark 
+                                                      ? Colors.grey.shade400 
+                                                      : Colors.grey.shade700, 
+                                                  size: 20
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -1051,7 +1114,9 @@ class _SearchPageState extends State<SearchPage> {
                                                 Icon(
                                                   _showCardView ? Icons.view_list : Icons.grid_view,
                                                   size: 18,
-                                                  color: Colors.grey.shade600,
+                                                  color: Theme.of(context).brightness == Brightness.dark 
+                                                      ? Colors.grey.shade400 
+                                                      : Colors.grey.shade600,
                                                 ),
                                               ],
                                             ),
@@ -1078,7 +1143,9 @@ class _SearchPageState extends State<SearchPage> {
                                                   size: 18,
                                                   color: _sortByBrightness 
                                                       ? Theme.of(context).colorScheme.secondary
-                                                      : Colors.grey.shade600,
+                                                      : (Theme.of(context).brightness == Brightness.dark 
+                                                          ? Colors.grey.shade400 
+                                                          : Colors.grey.shade600),
                                                 ),
                                                 const SizedBox(width: 4),
                                                 Text(
@@ -1088,7 +1155,9 @@ class _SearchPageState extends State<SearchPage> {
                                                     fontWeight: _sortByBrightness ? FontWeight.w600 : FontWeight.normal,
                                                     color: _sortByBrightness 
                                                         ? Theme.of(context).colorScheme.secondary
-                                                        : Colors.grey.shade600,
+                                                        : (Theme.of(context).brightness == Brightness.dark 
+                                                            ? Colors.grey.shade400 
+                                                            : Colors.grey.shade600),
                                                   ),
                                                 ),
                                               ],

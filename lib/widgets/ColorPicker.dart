@@ -49,11 +49,12 @@ class _ColorPickerWidgetState extends State<ColorPickerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: widget.width,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -72,7 +73,7 @@ class _ColorPickerWidgetState extends State<ColorPickerWidget> {
             height: 200,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
@@ -205,7 +206,7 @@ class _ColorPickerWidgetState extends State<ColorPickerWidget> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: isDark ? Theme.of(context).colorScheme.surface : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -219,23 +220,24 @@ class _ColorPickerWidgetState extends State<ColorPickerWidget> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade600,
+                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
                       ),
                       child: Text(
                         '#${_currentColor.value.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontFamily: 'monospace',
                           fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
                         ),
                       ),
                     ),
@@ -246,7 +248,7 @@ class _ColorPickerWidgetState extends State<ColorPickerWidget> {
                       decoration: BoxDecoration(
                         color: _currentColor,
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.grey.shade300),
+                        border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade300),
                       ),
                     ),
                   ],
@@ -278,12 +280,13 @@ class _ColorPickerWidgetState extends State<ColorPickerWidget> {
   }
 
   Widget _buildColorValueCard(String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.white,
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: isDark ? Colors.grey.shade700 : Colors.grey.shade200),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,7 +297,7 @@ class _ColorPickerWidgetState extends State<ColorPickerWidget> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade600,
+              color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
             ),
           ),
           const SizedBox(height: 2),
@@ -360,7 +363,9 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Dialog(
+      backgroundColor: isDark ? Theme.of(context).colorScheme.surface : Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -377,9 +382,10 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
                 children: [
                   Text(
                     widget.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: isDark ? Colors.white : Colors.black,
                     ),
                   ),
                   IconButton(

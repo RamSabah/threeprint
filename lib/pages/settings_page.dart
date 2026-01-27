@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../pages/account_page.dart';
+import '../services/theme_service.dart';
 
 
 class SettingsPage extends StatelessWidget {
@@ -75,16 +77,22 @@ class SettingsPage extends StatelessWidget {
           const SizedBox(height: 16),
           
           Card(
-            child: ListTile(
-              leading: const Icon(Icons.dark_mode),
-              title: const Text('Dark Mode'),
-              subtitle: const Text('Toggle dark/light theme'),
-              trailing: Switch(
-                value: false,
-                onChanged: (value) {
-                  // TODO: Implement theme switching
-                },
-              ),
+            child: Consumer<ThemeService>(
+              builder: (context, themeService, child) {
+                return ListTile(
+                  leading: Icon(
+                    themeService.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                  ),
+                  title: const Text('Dark Mode'),
+                  subtitle: const Text('Toggle dark/light theme'),
+                  trailing: Switch(
+                    value: themeService.isDarkMode,
+                    onChanged: (value) {
+                      themeService.toggleTheme();
+                    },
+                  ),
+                );
+              },
             ),
           ),
           

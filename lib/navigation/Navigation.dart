@@ -157,11 +157,15 @@ class _MainNavigationState extends State<MainNavigation> {
         bottomNavigationBar: SafeArea(
           top: false,
           child: BottomNavigationBar(
-        backgroundColor: Theme.of(context).colorScheme.onPrimary,
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface
+            : Theme.of(context).colorScheme.onPrimary,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Theme.of(context).colorScheme.secondary,
-        unselectedItemColor: Colors.white,
-        items: <BottomNavigationBarItem>[
+        unselectedItemColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey
+            : Colors.white,
+        items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'BaseColors.dart';
 import 'navigation/Navigation.dart';
 import 'pages/account_page.dart';
+import 'services/theme_service.dart';
 
 void main() async {
   // Wrap the entire main function in error handling
@@ -38,13 +40,23 @@ void main() async {
       }
       
       // Store Firebase status globally
-      runApp(MyApp(firebaseInitialized: firebaseInitialized));
+      runApp(
+        ChangeNotifierProvider(
+          create: (_) => ThemeService(),
+          child: MyApp(firebaseInitialized: firebaseInitialized),
+        ),
+      );
       
     } catch (e, stack) {
       print('Error in main initialization: $e');
       print('Stack trace: $stack');
       // Run app with minimal configuration if there's an error
-      runApp(const MyApp(firebaseInitialized: false));
+      runApp(
+        ChangeNotifierProvider(
+          create: (_) => ThemeService(),
+          child: const MyApp(firebaseInitialized: false),
+        ),
+      );
     }
   }, (error, stack) {
     print('Uncaught error in main: $error');
@@ -52,7 +64,12 @@ void main() async {
     // Last resort - run app with basic configuration
     try {
       WidgetsFlutterBinding.ensureInitialized();
-      runApp(const MyApp(firebaseInitialized: false));
+      runApp(
+        ChangeNotifierProvider(
+          create: (_) => ThemeService(),
+          child: const MyApp(firebaseInitialized: false),
+        ),
+      );
     } catch (e) {
       print('Fatal error: $e');
     }
@@ -153,13 +170,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final baseColors = BaseColors();
+    final themeService = Provider.of<ThemeService>(context);
     
     // Show minimal loading screen while app initializes
     if (!_isAppReady) {
       return MaterialApp(
         title: 'ThreePrint',
         debugShowCheckedModeBanner: false,
+        theme: themeService.lightTheme,
+        darkTheme: themeService.darkTheme,
+        themeMode: themeService.isDarkMode ? ThemeMode.dark : ThemeMode.light,
         home: Scaffold(
           backgroundColor: AppColors.secondaryLight,
           body: Center(
@@ -193,6 +213,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return MaterialApp(
       title: 'ThreePrint',
       debugShowCheckedModeBanner: false,
+      theme: themeService.lightTheme,
+      darkTheme: themeService.darkTheme,
+      themeMode: themeService.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       builder: (context, child) {
         ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
           return Scaffold(
@@ -230,34 +253,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         };
         return child ?? Container();
       },
-      theme: ThemeData(
-        colorScheme: ColorScheme.light(
-          primary: AppColors.primaryColor,
-          secondary: AppColors.specialColor,
-          surface: AppColors.secondaryLight,
-          onPrimary: AppColors.secondaryDark,
-          onSecondary: Colors.white,
-        ),
-        scaffoldBackgroundColor: AppColors.secondaryLight,
-        appBarTheme: AppBarTheme(
-          backgroundColor: AppColors.primaryColor,
-          foregroundColor: Colors.white,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.specialColor,
-            foregroundColor: AppColors.secondaryLight,
-          ),
-        ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
-          backgroundColor: AppColors.specialColor,
-          foregroundColor: Colors.white,
-        ),
-        cardTheme: CardThemeData(
-          color: Colors.white,
-          surfaceTintColor: Colors.white,
-        ),
-      ),
       home: const SafeAreaWrapper(),
       routes: {
         '/account': (context) => const AccountPage(),

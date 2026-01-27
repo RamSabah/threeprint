@@ -125,14 +125,14 @@ class _FilamentDetailState extends State<FilamentDetail> {
                     .map((hex) => _getColorFromHex(hex))
                     .toList(),
               ),
-              border: Border.all(color: Colors.grey.shade300, width: 2),
+              border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade300, width: 2),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Multi-Color',
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey.shade600,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -157,14 +157,14 @@ class _FilamentDetailState extends State<FilamentDetail> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _getColorFromHex(widget.filament.colorHex),
-              border: Border.all(color: Colors.grey.shade300, width: 2),
+              border: Border.all(color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade300, width: 2),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             widget.filament.colorHex!.toUpperCase(),
             style: TextStyle(
-              color: Colors.grey.shade600,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey.shade600,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -212,9 +212,10 @@ class _FilamentDetailState extends State<FilamentDetail> {
           children: [
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 12),
@@ -240,7 +241,7 @@ class _FilamentDetailState extends State<FilamentDetail> {
               child: Text(
                 label,
                 style: TextStyle(
-                  color: Colors.grey.shade700,
+                  color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.grey.shade700,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -249,7 +250,11 @@ class _FilamentDetailState extends State<FilamentDetail> {
               child: Text(
                 value ?? 'N/A',
                 style: TextStyle(
-                  color: value != null ? Colors.black87 : Colors.grey.shade500,
+                  color: value != null 
+                      ? (Theme.of(context).textTheme.bodyLarge?.color ?? Colors.white)
+                      : (Theme.of(context).brightness == Brightness.dark 
+                          ? Colors.grey.shade600 
+                          : Colors.grey.shade500),
                   fontWeight: value != null ? FontWeight.w500 : FontWeight.normal,
                 ),
                 textAlign: TextAlign.right,
@@ -289,7 +294,8 @@ class _FilamentDetailState extends State<FilamentDetail> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.filament.displayName),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
         actions: [
           _isLoading
               ? const Padding(
@@ -335,7 +341,7 @@ class _FilamentDetailState extends State<FilamentDetail> {
                   Text(
                     '${widget.filament.material} • ${widget.filament.diameter}mm',
                     style: TextStyle(
-                      color: Colors.grey.shade700,
+                      color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.grey.shade700,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                     ),
