@@ -1756,14 +1756,13 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                           Icon(widget.filamentToEdit != null ? Icons.close : Icons.clear_all),
                           const SizedBox(width: 8),
                           Text(
-                            widget.filamentToEdit != null ? 'Cancel' : 'Clear Fields',
+                            widget.filamentToEdit != null ? 'Cancel' : 'Clear',
                             style: const TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
                   const SizedBox(width: 12),
                   Expanded(
                     flex: 2,
@@ -1800,7 +1799,7 @@ class _AddFilamentPageState extends State<AddFilamentPage> {
                                 const Icon(Icons.save),
                                 const SizedBox(width: 8),
                                 Text(
-                                  widget.filamentToEdit != null ? 'Update Filament' : 'Save Filament',
+                                  widget.filamentToEdit != null ? 'Update' : 'Save',
                                   style: const TextStyle(fontSize: 16),
                                 ),
                               ],
