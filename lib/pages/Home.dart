@@ -292,7 +292,9 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).brightness == Brightness.dark 
+              ? Theme.of(context).colorScheme.surfaceContainerHighest 
+              : Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -346,9 +348,10 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                         Expanded(
                           child: Text(
                             filament.brand,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.bold,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -392,8 +395,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                       filament.productName != null && filament.productName!.isNotEmpty
                           ? '${filament.type}, ${filament.productName}'
                           : filament.type,
-                      style: const TextStyle(
-                        color: Colors.black87,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87,
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.2,
@@ -406,23 +409,23 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                     // Diameter and weight
                     Row(
                       children: [
-                        Icon(Icons.straighten, size: 11, color: Colors.grey[600]),
+                        Icon(Icons.straighten, size: 11, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600]),
                         const SizedBox(width: 3),
                         Text(
                           '${filament.diameter}mm',
                           style: TextStyle(
                             fontSize: 10,
-                            color: Colors.grey[600],
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600],
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Icon(Icons.scale, size: 11, color: Colors.grey[600]),
+                        Icon(Icons.scale, size: 11, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600]),
                         const SizedBox(width: 3),
                         Text(
                           '${filament.weight.toInt()}g',
                           style: TextStyle(
                             fontSize: 10,
-                            color: Colors.grey[600],
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600],
                           ),
                         ),
                       ],
@@ -435,53 +438,53 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
                       children: [
                         // Extruder Temperature
                         if (filament.extruderTempRange != null && filament.extruderTempRange!.length == 2) ...[
-                          Icon(Icons.thermostat, size: 11, color: Colors.grey[600]),
+                          Icon(Icons.thermostat, size: 11, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600]),
                           const SizedBox(width: 2),
                           Flexible(
                             child: Text(
                               '${filament.extruderTempRange![0]}-${filament.extruderTempRange![1]}°C',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Colors.grey[600],
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600],
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 6),
                         ] else if (filament.extruderTemp != null) ...[
-                          Icon(Icons.thermostat, size: 11, color: Colors.grey[600]),
+                          Icon(Icons.thermostat, size: 11, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600]),
                           const SizedBox(width: 2),
                           Text(
                             '${filament.extruderTemp}°C',
                             style: TextStyle(
                               fontSize: 10,
-                              color: Colors.grey[600],
+                              color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600],
                             ),
                           ),
                           const SizedBox(width: 6),
                         ],
                         // Bed Temperature
                         if (filament.bedTempRange != null && filament.bedTempRange!.length == 2) ...[
-                          Icon(Icons.layers, size: 11, color: Colors.grey[600]),
+                          Icon(Icons.layers, size: 11, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600]),
                           const SizedBox(width: 2),
                           Flexible(
                             child: Text(
                               '${filament.bedTempRange![0]}-${filament.bedTempRange![1]}°C',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: Colors.grey[600],
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600],
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ] else if (filament.bedTemp != null) ...[
-                          Icon(Icons.layers, size: 11, color: Colors.grey[600]),
+                          Icon(Icons.layers, size: 11, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600]),
                           const SizedBox(width: 2),
                           Text(
                             '${filament.bedTemp}°C',
                             style: TextStyle(
                               fontSize: 10,
-                              color: Colors.grey[600],
+                              color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade400 : Colors.grey[600],
                             ),
                           ),
                         ],
