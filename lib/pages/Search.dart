@@ -677,11 +677,16 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          // Search Header
-          Container(
+    return GestureDetector(
+      onTap: () {
+        // Unfocus the search field when tapping outside
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        body: Column(
+          children: [
+            // Search Header
+            Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
@@ -847,6 +852,7 @@ class _SearchPageState extends State<SearchPage> {
                                   ),
                                   child: InkWell(
                                     onTap: () {
+                                      FocusScope.of(context).unfocus();
                                       setState(() {
                                         _selectedManufacturer = manufacturer;
                                         _showingAllManufacturers = false;
@@ -1209,13 +1215,22 @@ class _SearchPageState extends State<SearchPage> {
                           final filament = filteredResults[index];
                           return InkWell(
                             onTap: () {
+                              FocusScope.of(context).unfocus();
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => FilamentDetail(
                                     filament: filament,
                                   ),
                                 ),
-                              );
+                              ).then((_) {
+                                // Unfocus again when returning to this page
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  if (mounted) {
+                                    _searchFocusNode.unfocus();
+                                    FocusScope.of(context).unfocus();
+                                  }
+                                });
+                              });
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: _showCardView 
@@ -1241,7 +1256,8 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ],
           ),
-        );
+        ),
+      );
   }
   
   Widget _buildFilamentCard(SpoolmanFilament filament) {
