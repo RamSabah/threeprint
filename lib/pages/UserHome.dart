@@ -475,6 +475,7 @@ class _UserFilamentDetailPageState extends State<UserFilamentDetailPage> {
             child: Text(
               value,
               style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.right,
             ),
           ),
         ],
