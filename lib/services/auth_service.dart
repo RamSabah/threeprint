@@ -50,6 +50,63 @@ class AuthService {
     }
   }
 
+  // Send email verification to current user
+  Future<void> sendEmailVerification() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('No authenticated user to verify.');
+    }
+    if (user.emailVerified) {
+      return;
+    }
+    try {
+      await user.sendEmailVerification();
+    } on FirebaseAuthException catch (e) {
+      throw Exception('Failed to send verification email: ${e.message ?? e.code}');
+    } catch (e) {
+      throw Exception('Failed to send verification email: ${e.toString()}');
+    }
+  }
+
+  // Reload current user and return the updated user
+  Future<User?> reloadCurrentUser() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      return null;
+    }
+    await user.reload();
+    return _auth.currentUser;
+  }
+
+  // Send password reset email
+  Future<void> sendPasswordResetEmail({required String email}) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } catch (e) {
+      throw Exception('Failed to send reset email: ${e.toString()}');
+    }
+  }
+
+  // Delete current user
+  Future<void> deleteCurrentUser() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('No authenticated user to delete.');
+      }
+      await user.delete();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw Exception('Please re-login before deleting your account.');
+      }
+      throw Exception('Failed to delete account: ${e.message ?? e.code}');
+    } catch (e) {
+      throw Exception('Failed to delete account: ${e.toString()}');
+    }
+  }
+
   // Handle Firebase Auth exceptions
   String _handleAuthException(FirebaseAuthException e) {
     switch (e.code) {
